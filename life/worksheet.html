@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>한평생 가계부 활동지</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: A4 활동지 묶음 — 화면에서는 줄여서 미리 보고, 인쇄하면 한 장씩 */
+:root {
+  --desk: #E4E9E1; --ink: #1C2A31; --muted: #5B6B6D; --rule: #D3DDD0; --plus: #1D5CAB; --stamp: #C4372A;
+  --paper: #FFFFFF; --p-ink: #1C2A31; --p-muted: #5E6B70; --p-line: #B9C4C8; --p-soft: #F1F5EE; --p-red: #C4372A; --p-blue: #1D5CAB; --p-gold: #A87A06;
+  --f-display: "Black Han Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-body: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --desk: #0F1518; --ink: #E4ECE9; --muted: #93A4A5; --rule: #26353B; --plus: #73A9F2; --stamp: #F08372; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --desk: #0F1518; --ink: #E4ECE9; --muted: #93A4A5; --rule: #26353B; --plus: #73A9F2; --stamp: #F08372; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--desk); color: var(--ink); font-family: var(--f-body); line-height: 1.6;
+  padding-block: 16px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--plus); }
+h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; margin: 0; line-height: 1.25; }
+.top { max-width: 1100px; margin: 0 auto 14px; display: grid; gap: 10px; }
+.top h1 { font-size: 30px; }
+.top p { margin: 0; color: var(--muted); max-width: 60em; }
+.nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.nav a, .nav button { border: 1.5px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 700; text-decoration: none; color: var(--ink); background: transparent; font-family: var(--f-body); cursor: pointer; }
+.nav .pri { background: var(--ink); color: var(--desk); }
+.note { font-size: 14px; color: var(--muted); }
+.scroll { overflow-x: auto; max-width: 1100px; margin: 0 auto; }
+.sheets { display: flex; flex-direction: column; gap: 24px; zoom: .6; width: max-content; }
+@media (max-width: 760px) { .sheets { zoom: .42; } }
+
+.sheet { width: 210mm; height: 297mm; padding: 12mm 13mm; background: var(--paper); color: var(--p-ink); box-shadow: 0 2px 14px rgba(0,0,0,.2);
+  overflow: hidden; display: flex; flex-direction: column; gap: 4.2mm; font-size: 10.5pt; line-height: 1.55; }
+.sh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: .6mm solid var(--p-ink); padding-bottom: 2mm; }
+.sh .tag { font-family: var(--f-num); font-size: 8.5pt; color: var(--p-muted); }
+.sh h2 { font-size: 20pt; }
+.sh h2 small { font-family: var(--f-body); font-size: 10pt; color: var(--p-muted); margin-left: 3mm; }
+.teacher { font-size: 9.2pt; gap: 3mm; line-height: 1.5; }
+.teacher td, .teacher th { padding: 1.1mm 2mm; }
+.teacher .box { padding: 2.4mm 3.4mm; }
+.teacher h3 { font-size: 12pt; }
+.teacher .sh { border-color: var(--p-blue); }
+.teacher .sh h2 { color: var(--p-blue); }
+.who { display: flex; gap: 8mm; font-family: var(--f-body); font-size: 10pt; }
+.who u { display: inline-block; width: 28mm; border-bottom: .3mm solid var(--p-ink); text-decoration: none; }
+h3 { font-size: 13pt; display: flex; align-items: center; gap: 2mm; }
+h3 .n { display: inline-grid; place-items: center; width: 6.5mm; height: 6.5mm; border-radius: 50%; border: .5mm solid var(--p-red); color: var(--p-red); font-size: 9.5pt; transform: rotate(-8deg); }
+.box { border: .35mm solid var(--p-line); border-radius: 2mm; padding: 3mm 4mm; }
+.soft { background: var(--p-soft); border-color: var(--p-soft); }
+.lines { background: repeating-linear-gradient(to bottom, transparent 0 7.6mm, var(--p-line) 7.6mm 7.9mm); }
+.l1 { height: 8mm; } .l2 { height: 16mm; } .l3 { height: 24mm; }
+table { border-collapse: collapse; width: 100%; }
+td, th { border: .3mm solid var(--p-line); padding: 1.6mm 2.2mm; vertical-align: top; text-align: left; }
+th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
+.tbl-fill td { height: 15mm; }
+.s4t td { height: 11mm; }
+.check td:not(:first-child) { width: 16mm; text-align: center; color: var(--p-muted); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.jar { border: .5mm solid var(--k); border-radius: 2mm 2mm 4mm 4mm; padding: 2.5mm; text-align: center; }
+.jar b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 12pt; color: var(--k); }
+.jar span { display: block; font-size: 8.5pt; color: var(--p-muted); }
+.jar .blank { margin-top: 2mm; font-family: var(--f-num); font-size: 10pt; }
+.pie { width: 38mm; height: 38mm; border-radius: 50%; border: .4mm solid var(--p-ink); margin: 0 auto; position: relative; }
+.pie::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1.2mm; height: 1.2mm; border-radius: 50%; background: var(--p-ink); transform: translate(-50%, -50%); }
+.graph { position: relative; height: 62mm; border-left: .4mm solid var(--p-ink); border-bottom: .4mm solid var(--p-ink); margin: 2mm 0 7mm 10mm;
+  background-image: linear-gradient(var(--p-soft) .3mm, transparent .3mm), linear-gradient(90deg, var(--p-soft) .3mm, transparent .3mm); background-size: 100% 7.75mm, 11.1% 100%; }
+.graph .xl { position: absolute; bottom: -6mm; font-family: var(--f-num); font-size: 8pt; color: var(--p-muted); transform: translateX(-50%); }
+.graph .yl { position: absolute; left: -10mm; top: -1mm; font-size: 8pt; color: var(--p-muted); width: 9mm; }
+.match { display: grid; grid-template-columns: 1fr 22mm 1.6fr; align-items: center; row-gap: 3.2mm; }
+.match .a, .match .b { border: .35mm solid var(--p-line); border-radius: 2mm; padding: 1.6mm 3mm; font-size: 10pt; }
+.match .a { font-family: var(--f-display); font-size: 11.5pt; }
+.match .dot { display: flex; justify-content: space-between; padding: 0 1mm; }
+.match .dot i { width: 2.4mm; height: 2.4mm; border-radius: 50%; background: var(--p-ink); }
+.mini { font-size: 8.8pt; color: var(--p-muted); }
+.hint { font-size: 9pt; color: var(--p-blue); }
+.flow td:first-child { width: 22mm; font-family: var(--f-num); font-size: 9pt; white-space: nowrap; }
+.flow td:nth-child(2) { width: 34mm; font-weight: 700; }
+.flow tr.ses td { background: var(--p-soft); font-weight: 700; font-family: var(--f-body); }
+.prin { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.prin div { border: .35mm solid var(--p-line); border-radius: 2mm; padding: 2mm 2.6mm; font-size: 8.9pt; }
+.prin b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 11.5pt; color: var(--p-red); }
+.cmap td { font-size: 8.4pt; padding: .8mm 1.8mm; line-height: 1.4; }
+.cmap td:nth-child(1) { font-weight: 700; white-space: nowrap; }
+.cmap td:nth-child(3) { text-align: center; color: var(--p-blue); font-weight: 700; }
+.rub td { font-size: 8.4pt; line-height: 1.4; }
+.stars { letter-spacing: 1.5mm; color: var(--p-muted); white-space: nowrap; }
+
+@page { size: A4; margin: 0; }
+@media print {
+  body { background: #fff; padding: 0; }
+  body::before, .top { display: none !important; }
+  .scroll { overflow: visible; max-width: none; margin: 0; }
+  .sheets { zoom: 1 !important; gap: 0; }
+  .sheet { box-shadow: none; break-after: page; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  body.only-student .teacher { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>한평생 가계부 · 활동지와 지도안</h1>
+  <p>초등 5학년 2차시용이에요. 교사용 2쪽(수업 설계, 개념 지도와 정답)과 학생용 활동지 5쪽이 들어 있어요. A4 세로로 인쇄하고, 인쇄 설정에서 여백은 '없음', '배경 그래픽'은 켜 주세요.</p>
+  <nav class="nav">
+    <a href="index.html">← 게임으로</a>
+    <a href="#t1">수업 설계</a><a href="#t2">개념 지도·정답</a>
+    <a href="#s1">활동지 1</a><a href="#s2">활동지 2</a><a href="#s3">활동지 3</a><a href="#s4">활동지 4</a><a href="#s5">활동지 5</a>
+    <button class="pri" id="btn-print-all" hidden>모두 인쇄</button>
+    <button id="btn-print-student" hidden>학생용만 인쇄</button>
+  </nav>
+  <p class="note" id="print-note">이 화면에서는 인쇄 창을 열 수 없어요. 저장소의 <b>life/worksheet.html</b> 파일을 내려받아 크롬이나 엣지로 열면 '모두 인쇄', '학생용만 인쇄' 단추가 나타나요.</p>
+</header>
+
+<div class="scroll"><div class="sheets">
+
+<!-- 교사용 1 -->
+<section class="sheet teacher" id="t1">
+  <div class="sh"><h2>수업 설계 <small>교사용 · 2차시 (80분)</small></h2><span class="tag">한평생 가계부 · 5학년</span></div>
+  <div class="grid2">
+    <div class="box"><h3>대상과 준비</h3>
+      <p>초등 5학년 · 1인 1기기(또는 2인 1기기) · 인터넷 브라우저<br>활동지 1~4 (활동지 5는 가정 과제)</p>
+      <p class="mini">사회과 경제 영역(희소성과 선택, 생산·소비, 시장과 가격), 실과 생활 자원 관리, 창의적 체험활동 금융교육 시간과 연결해 운영할 수 있어요. 학교 교육과정에 맞는 성취기준 코드를 적어 넣어 주세요.</p></div>
+    <div class="box"><h3>배울 것</h3>
+      <ol style="margin:0;padding-left:5mm">
+        <li>선택에는 기회비용이 따른다는 것을 알고, 고를 때 포기하는 것을 말할 수 있다.</li>
+        <li>저축과 이자, 빚과 이자, 물가 상승의 뜻을 게임 속 숫자로 설명할 수 있다.</li>
+        <li>쓰기·모으기·불리기·나누기의 균형을 생각해 나의 용돈 계획을 세운다.</li>
+      </ol></div>
+  </div>
+  <div class="box"><h3>게임 속 학습 설계 · 아이들은 이렇게 배워요</h3>
+    <div class="prin">
+      <div><b>① 고르면서 '포기한 것'을 본다</b>모든 갈림길 결과에 '포기한 것(기회비용)'이 함께 나와요. 고르는 순간마다 기회비용을 떠올리는 습관을 만들어요.</div>
+      <div><b>② 개념이 규칙으로 작동한다</b>통장을 만들어야 이자가 붙고, 빚에는 해마다 이자가 붙어요. 라면값은 계속 올라요. 설명을 듣기 전에 숫자로 먼저 겪어요.</div>
+      <div><b>③ 확인 문제와 금 도장</b>개념을 처음 만나면 3지선다 확인 문제가 나와요. 맞히면 금 도장과 함께 '배움 +2'를 받아 더 좋은 직업을 고를 수 있어요.</div>
+      <div><b>④ 엔딩을 비교하며 되돌아본다</b>엔딩 화면이 받은 이자·낸 이자·세금·라면값을 실제 숫자로 정리해 줘요. 모둠 친구와 비교하며 결과를 가른 선택을 찾아요.</div>
+    </div>
+    <p class="mini" style="margin-top:2mm">어려운 낱말(이자, 할부, 리볼빙, 연말정산 등)은 밑줄이 그어져 있고, 바로 아래 '낱말 풀이'에 뜻이 나와요.</p></div>
+  <div class="box"><h3>수업 흐름</h3>
+    <table class="flow">
+      <tr><th>시간</th><th>단계</th><th>활동과 발문</th></tr>
+      <tr class="ses"><td colspan="3">1차시 · 한평생을 살아 보기</td></tr>
+      <tr><td>0–7분</td><td>마음 열기</td><td>활동지 1. "용돈을 받으면 어떻게 쓰나요?" 나의 돈 습관을 점검하고 70년 뒤 라면값을 예측해요.</td></tr>
+      <tr><td>7–10분</td><td>게임 안내</td><td>오른쪽 '돈 나누기', 가계부 줄, 라면값, 확인 문제를 화면으로 짧게 보여 줘요.</td></tr>
+      <tr><td>10–35분</td><td>게임 하기</td><td>활동지 2에 갈림길 6곳 이상을 기록해요. "그 선택으로 포기한 것은 무엇인가요?"</td></tr>
+      <tr><td>35–40분</td><td>엔딩 나누기</td><td>엔딩 화면의 '활동지에 옮겨 적어요'를 활동지 3 위쪽에 옮겨 적어요.</td></tr>
+      <tr class="ses"><td colspan="3">2차시 · 되돌아보고 나의 원칙 세우기</td></tr>
+      <tr><td>0–10분</td><td>나의 한평생</td><td>활동지 3. 자산 그래프 그리기, 받은 이자와 낸 이자 비교, 다시 산다면 바꿀 선택.</td></tr>
+      <tr><td>10–25분</td><td>모둠 비교</td><td>활동지 4. "출발한 집과 엔딩은 얼마나 관련 있었나요?" "엔딩을 가른 선택은?"</td></tr>
+      <tr><td>25–35분</td><td>개념 정리</td><td>모둠별 '돈 원칙 3가지' 발표. 교사가 핵심 개념 5가지(기회비용, 이자, 신용, 물가, 금융 사기)로 묶어 정리해요.</td></tr>
+      <tr><td>35–40분</td><td>생활 잇기</td><td>활동지 5를 가정 과제로 안내해요. 진짜 내 용돈으로 한 달 계획 세우기.</td></tr>
+    </table></div>
+  <div class="box soft"><h3>운영 팁</h3>
+    <p class="mini" style="color:var(--p-ink)">한 판은 20분쯤 걸려요. 빨리 끝난 학생은 '다시 태어나기'로 다른 선택을 해 보고 엔딩 도감을 채우게 해요. 기록은 각 기기의 브라우저에 저장되니 1·2차시는 같은 기기를 쓰세요. 금액과 확률은 개념을 이해하도록 단순화한 값이고, 실제 금융 상품 안내가 아니라는 점을 알려 주세요.</p></div>
+</section>
+
+<!-- 교사용 2 -->
+<section class="sheet teacher" id="t2">
+  <div class="sh"><h2>개념 지도와 정답 <small>교사용</small></h2><span class="tag">한평생 가계부 · 5학년</span></div>
+  <table class="cmap">
+    <tr><th>경제 개념</th><th>게임 속 장면 (나이)</th><th>5학년 핵심</th><th>확인 문제 정답</th></tr>
+    <tr><td>용돈 관리(예산)</td><td>첫 용돈(8), 물가가 올랐어요(무작위)</td><td>●</td><td>8,000원</td></tr>
+    <tr><td>기회비용</td><td>뽑기·떡볶이(9), 생일 선물(10), 스마트폰(13), 자동차(28), 집(30) — 모든 결과의 '포기한 것'</td><td>●</td><td>만화책을 읽는 즐거움</td></tr>
+    <tr><td>시장과 가격</td><td>학교 알뜰장터(12)</td><td>●</td><td>가격을 조금 내린다</td></tr>
+    <tr><td>저축과 이자</td><td>통장 만들기(11), 세뱃돈(14), 가계부 '예금 이자' 줄</td><td>●</td><td>2,500원</td></tr>
+    <tr><td>일과 소득</td><td>첫 아르바이트(17), 직업 고르기(23), 주말 부업</td><td>●</td><td>12만원</td></tr>
+    <tr><td>세금</td><td>직업 고르기(23), 가계부 '세금 뗀 돈', 세금 돌려받기</td><td>●</td><td>학교·도로·소방서처럼 모두가 쓰는 곳</td></tr>
+    <tr><td>신용</td><td>첫 신용카드(24), 창업 대출 조건(36)</td><td>●</td><td>빌린 돈을 약속한 날에 잘 갚는 사람</td></tr>
+    <tr><td>빚과 이자</td><td>할부폰(13), 학자금(19), 리볼빙(24), 집 대출(30), 가계부 '빚 이자' 줄</td><td>●</td><td>110만원</td></tr>
+    <tr><td>물가 상승</td><td>오른쪽 라면값(항상), 장바구니 물가(무작위), 엔딩 그래프의 두 선</td><td>●</td><td>10개에서 8개로 줄었다</td></tr>
+    <tr><td>금융 사기</td><td>돈 복사 광고(15), 대박 투자 제안(무작위), 보이스피싱(70)</td><td>●</td><td>전화를 끊고 가족·은행에 확인</td></tr>
+    <tr><td>나눔</td><td>이웃 돕기, 공부방 봉사(62), 장학금(75), '나누기' 봉투</td><td>●</td><td>돈이 필요한 곳으로 흘러가 모두를 도움</td></tr>
+    <tr><td>비상금</td><td>부모님 병원비(50), 일자리를 잃었어요(무작위)</td><td>●</td><td>생활비 3~6개월치</td></tr>
+    <tr><td>확률 · 충동구매</td><td>뽑기 기계(9)</td><td></td><td>보장은 없다 · 하루 기다려 보기</td></tr>
+    <tr><td>복리</td><td>할머니의 눈덩이 이야기(14)</td><td></td><td>121만원</td></tr>
+    <tr><td>위험과 수익 · 분산 투자</td><td>세뱃돈 투자(14), 주식 폭락(무작위), 창업(36)</td><td></td><td>의심해야 한다 · 여러 곳에 나누어</td></tr>
+    <tr><td>배움에 투자하기</td><td>알바·공부(17), 진로(19), 새로운 기술(42)</td><td></td><td>나중에 할 수 있는 일을 넓히는 것</td></tr>
+    <tr><td>보험</td><td>보험 상담(26), 갑자기 아팠어요(무작위)</td><td></td><td>드물지만 큰돈이 드는 일에 대비</td></tr>
+    <tr><td>감가상각</td><td>자동차(28)</td><td></td><td>새로 산 자동차</td></tr>
+    <tr><td>연금</td><td>노후 준비(54), 은퇴(62)</td><td></td><td>일할 때 모아 나이 들어 나누어 받는다</td></tr>
+    <tr><td>창업</td><td>가게를 차려 볼까?(36)</td><td></td><td>성공하면 크지만 실패하면 잃을 수도</td></tr>
+  </table>
+  <div class="box"><h3>평가 기준</h3>
+    <table class="rub">
+      <tr><th style="width:30mm">평가 요소</th><th>잘함</th><th>보통</th><th>노력 필요</th></tr>
+      <tr><td>기회비용 (활동지 2·3)</td><td>갈림길마다 포기한 것을 구체적으로 쓰고, 바꿀 선택의 기회비용까지 설명한다.</td><td>포기한 것을 대부분 쓴다.</td><td>고른 것만 쓰고 포기한 것을 쓰지 못한다.</td></tr>
+      <tr><td>이자·물가 (활동지 3)</td><td>받은 이자와 낸 이자, 라면값 변화를 숫자로 비교해 설명한다.</td><td>숫자는 옮겨 적지만 설명이 짧다.</td><td>숫자의 뜻을 설명하지 못한다.</td></tr>
+      <tr><td>돈 계획 (활동지 4·5)</td><td>네 봉투의 균형과 까닭을 들어 실천할 계획을 세운다.</td><td>계획은 세우지만 까닭이 부족하다.</td><td>계획을 세우지 못한다.</td></tr>
+    </table></div>
+  <p class="mini">게임 속 엔딩(부자, 구두쇠, 베짱이 등)은 평가 대상이 아니에요. "어떤 엔딩이 좋은가"보다 "그 엔딩을 만든 선택은 무엇이었나"를 묻는 것이 이 수업의 목표예요.</p>
+</section>
+
+<!-- 활동지 1 -->
+<section class="sheet" id="s1">
+  <div class="sh"><h2>활동지 1 <small>게임 전 · 나의 돈 습관</small></h2><span class="tag">한평생 가계부</span></div>
+  <div class="who"><span>5학년 ( )반 ( )번</span><span>이름 <u></u></span></div>
+  <div><h3><span class="n">1</span>나는 어떤 돈 습관을 가졌을까요?</h3>
+    <table class="check" style="margin-top:2mm">
+      <tr><th>내 이야기</th><th>그래요</th><th>가끔</th><th>아니요</th></tr>
+      <tr><td>용돈을 받으면 며칠 안에 거의 다 쓴다.</td><td>○</td><td>○</td><td>○</td></tr>
+      <tr><td>사고 싶은 것이 생기면 바로 산다.</td><td>○</td><td>○</td><td>○</td></tr>
+      <tr><td>용돈의 일부를 따로 모아 둔다.</td><td>○</td><td>○</td><td>○</td></tr>
+      <tr><td>무엇을 살지 미리 정하고 가게에 간다.</td><td>○</td><td>○</td><td>○</td></tr>
+      <tr><td>친구나 가족에게 선물하려고 돈을 남겨 둔다.</td><td>○</td><td>○</td><td>○</td></tr>
+    </table></div>
+  <div><h3><span class="n">2</span>내 용돈을 네 봉투에 나눈다면?</h3>
+    <p class="mini">게임에서는 해마다 들어온 돈이 이 비율대로 나뉘어요. 네 칸을 더하면 100%가 되게 적어 보세요.</p>
+    <div class="grid2" style="align-items:center">
+      <div class="grid4">
+        <div class="jar" style="--k:#E07F12"><b>쓰기</b><span>지금 누리는 기쁨</span><div class="blank">____ %</div></div>
+        <div class="jar" style="--k:#1D5CAB"><b>모으기</b><span>통장에 저축</span><div class="blank">____ %</div></div>
+        <div class="jar" style="--k:#23875A"><b>불리기</b><span>투자로 키우기</span><div class="blank">____ %</div></div>
+        <div class="jar" style="--k:#C94F86"><b>나누기</b><span>기부·선물</span><div class="blank">____ %</div></div>
+      </div>
+      <div><div class="pie"></div><p class="mini" style="text-align:center;margin-top:2mm">원그래프로 나타내 보세요</p></div>
+    </div></div>
+  <div><h3><span class="n">3</span>이렇게 나눈 까닭은 무엇인가요?</h3><div class="lines l2"></div></div>
+  <div><h3><span class="n">4</span>예측해 보아요</h3>
+    <div class="grid2">
+      <div class="box">지금 라면 한 봉지가 1,000원이라면,<br><b>70년 뒤</b>에는 얼마쯤 할까요?<div class="lines l1" style="margin-top:2mm"></div><p class="mini">그렇게 생각한 까닭:</p><div class="lines l1"></div></div>
+      <div class="box">통장에 10만원을 넣어 두면 1년 뒤 얼마가 될까요? (이자 1년에 2.5%)<div class="lines l1" style="margin-top:2mm"></div><p class="mini">게임을 하고 나서 맞는지 확인해 보세요.</p></div>
+    </div></div>
+  <div><h3><span class="n">5</span>나는 어떤 엔딩을 만나게 될까요?</h3><div class="lines l1"></div></div>
+</section>
+
+<!-- 활동지 2 -->
+<section class="sheet" id="s2">
+  <div class="sh"><h2>활동지 2 <small>게임 중 · 갈림길 기록장</small></h2><span class="tag">한평생 가계부</span></div>
+  <div class="who"><span>5학년 ( )반 ( )번</span><span>이름 <u></u></span><span>출발한 집 <u></u></span></div>
+  <div><h3><span class="n">1</span>갈림길을 6곳 이상 기록해요</h3>
+    <p class="mini">결과 화면의 노란 줄 '포기한 것 (기회비용)'을 참고하세요. 확인 문제를 맞히면 마지막 칸에 ★를 그려요.</p>
+    <table class="tbl-fill" style="margin-top:2mm">
+      <tr><th style="width:11mm">나이</th><th style="width:34mm">무슨 일?</th><th style="width:36mm">내 선택</th><th style="width:36mm">포기한 것<br>(기회비용)</th><th>결과<br>(자산·행복 변화)</th><th style="width:20mm">받은 도장</th></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </table></div>
+  <div><h3><span class="n">2</span>가계부 탐정 미션</h3>
+    <div class="grid2">
+      <div class="box"><b>예금 이자</b> 줄을 처음 찾은 때<br>( )살 · ( )원<br><span class="mini">통장을 만든 나이: ( )살</span></div>
+      <div class="box"><b>빚 이자</b> 줄을 찾았나요? (예 / 아니요)<br>찾았다면 ( )살 · ( )원<br><span class="mini">왜 빚이 생겼나요?</span></div>
+    </div></div>
+  <div><h3><span class="n">3</span>라면값을 기록해요</h3>
+    <table><tr><th>나이</th><td>8살</td><td>20살</td><td>40살</td><td>60살</td><td>마지막</td></tr>
+      <tr><th>라면 한 봉지</th><td>1,000원</td><td></td><td></td><td></td><td></td></tr></table></div>
+</section>
+
+<!-- 활동지 3 -->
+<section class="sheet" id="s3">
+  <div class="sh"><h2>활동지 3 <small>게임 후 · 나의 한평생 돌아보기</small></h2><span class="tag">한평생 가계부</span></div>
+  <div class="who"><span>5학년 ( )반 ( )번</span><span>이름 <u></u></span></div>
+  <div><h3><span class="n">1</span>엔딩 화면의 '활동지에 옮겨 적어요'를 옮겨 적어요</h3>
+    <table><tr><th style="width:36mm">나의 엔딩</th><td colspan="3"></td></tr>
+      <tr><th>마지막 자산</th><td></td><th style="width:36mm">라면으로 바꾸면</th><td>개</td></tr>
+      <tr><th>받은 이자</th><td></td><th>낸 이자</th><td></td></tr>
+      <tr><th>확인 문제</th><td>( ) / ( ) 정답</td><th>금 도장</th><td>개</td></tr></table></div>
+  <div><h3><span class="n">2</span>나의 자산 그래프를 그려요</h3>
+    <p class="mini">엔딩 화면의 '평생 자산 그래프'를 보고, 10살마다 점을 찍어 이어 보세요.</p>
+    <div class="graph"><span class="yl">자산</span>
+      <span class="xl" style="left:0%">10</span><span class="xl" style="left:12.5%">20</span><span class="xl" style="left:25%">30</span><span class="xl" style="left:37.5%">40</span><span class="xl" style="left:50%">50</span><span class="xl" style="left:62.5%">60</span><span class="xl" style="left:75%">70</span><span class="xl" style="left:87.5%">80</span><span class="xl" style="left:100%">90살</span></div>
+    <p class="mini">그래프가 가장 크게 오르거나 내려간 때는 ( )살이에요. 그때 무슨 일이 있었나요?</p><div class="lines l1"></div></div>
+  <div><h3><span class="n">3</span>받은 이자와 낸 이자를 비교해요</h3>
+    <p class="mini">어느 쪽이 더 컸나요? 그렇게 된 까닭은 무엇일까요?</p><div class="lines l2"></div></div>
+  <div><h3><span class="n">4</span>다시 태어난다면 바꾸고 싶은 선택 1가지</h3>
+    <div class="grid2"><div class="box">( )살의 선택을<br><div class="lines l1"></div>로 바꾸고 싶어요.</div><div class="box">그 선택의 기회비용(포기할 것)은<div class="lines l2"></div></div></div></div>
+  <div><h3><span class="n">5</span>활동지 1의 예측은 맞았나요?</h3><div class="lines l1"></div></div>
+</section>
+
+<!-- 활동지 4 -->
+<section class="sheet" id="s4">
+  <div class="sh"><h2>활동지 4 <small>모둠 토의 · 우리 모둠의 한평생</small></h2><span class="tag">한평생 가계부</span></div>
+  <div class="who"><span>5학년 ( )반 ( )모둠</span></div>
+  <div><h3><span class="n">1</span>모둠 친구들의 한평생을 비교해요</h3>
+    <table class="tbl-fill s4t" style="margin-top:2mm">
+      <tr><th style="width:24mm">이름</th><th style="width:24mm">출발한 집</th><th style="width:38mm">엔딩</th><th style="width:30mm">라면으로 바꾼 자산</th><th>가장 중요했던 선택</th></tr>
+      <tr><td></td><td></td><td></td><td>개</td><td></td></tr>
+      <tr><td></td><td></td><td></td><td>개</td><td></td></tr>
+      <tr><td></td><td></td><td></td><td>개</td><td></td></tr>
+      <tr><td></td><td></td><td></td><td>개</td><td></td></tr>
+      <tr><td></td><td></td><td></td><td>개</td><td></td></tr>
+    </table></div>
+  <div><h3><span class="n">2</span>함께 이야기해요</h3>
+    <div class="box"><b>가.</b> 출발한 집(넉넉한 집, 보통의 집, 빠듯한 집)과 엔딩은 얼마나 관련 있었나요?<div class="lines l2"></div></div>
+    <div class="box" style="margin-top:3mm"><b>나.</b> 엔딩이 달라지게 만든 가장 큰 선택은 무엇이었나요?<div class="lines l2"></div></div>
+    <div class="box" style="margin-top:3mm"><b>다.</b> 돈을 많이 모은 사람은 모두 행복했나요? 행복과 돈은 어떤 관계일까요?<div class="lines l2"></div></div></div>
+  <div><h3><span class="n">3</span>우리 모둠의 돈 원칙 3가지</h3>
+    <p class="mini">예: "사기 전에 포기할 것을 먼저 생각한다", "모으기 봉투는 꼭 지킨다"</p>
+    <div class="box"><b>하나.</b><div class="lines l1"></div><b>둘.</b><div class="lines l1"></div><b>셋.</b><div class="lines l1"></div></div></div>
+</section>
+
+<!-- 활동지 5 -->
+<section class="sheet" id="s5">
+  <div class="sh"><h2>활동지 5 <small>생활 잇기 · 진짜 내 용돈 계획 (가정 과제)</small></h2><span class="tag">한평생 가계부</span></div>
+  <div class="who"><span>5학년 ( )반 ( )번</span><span>이름 <u></u></span></div>
+  <div><h3><span class="n">1</span>오늘 배운 낱말을 뜻과 이어 보세요</h3>
+    <div class="match" style="margin-top:2mm">
+      <div class="a">기회비용</div><div class="dot"><i></i><i></i></div><div class="b">물건값이 전체적으로 오르는 것</div>
+      <div class="a">이자</div><div class="dot"><i></i><i></i></div><div class="b">약속한 날에 돈을 잘 갚는다는 믿음</div>
+      <div class="a">신용</div><div class="dot"><i></i><i></i></div><div class="b">고르면서 포기한 것의 가치</div>
+      <div class="a">인플레이션</div><div class="dot"><i></i><i></i></div><div class="b">갑작스러운 일에 쓰려고 따로 모아 둔 돈</div>
+      <div class="a">비상금</div><div class="dot"><i></i><i></i></div><div class="b">돈을 맡기거나 빌린 대가로 주고받는 돈</div>
+    </div></div>
+  <div><h3><span class="n">2</span>한 달 용돈 계획표</h3>
+    <table><tr><th style="width:40mm">한 달 용돈</th><td colspan="4">원</td></tr>
+      <tr><th>봉투</th><th>쓰기</th><th>모으기</th><th>불리기 · 또는 모으기</th><th>나누기</th></tr>
+      <tr><th>비율</th><td>%</td><td>%</td><td>%</td><td>%</td></tr>
+      <tr><th>금액</th><td>원</td><td>원</td><td>원</td><td>원</td></tr></table></div>
+  <div><h3><span class="n">3</span>사고 싶은 것과 기회비용</h3>
+    <div class="grid2"><div class="box">이번 달에 사고 싶은 것<div class="lines l1"></div>가격: ( )원</div><div class="box">그것을 사면 포기하게 되는 것<div class="lines l2"></div></div></div></div>
+  <div><h3><span class="n">4</span>한 달 뒤 돌아보기</h3>
+    <table class="check"><tr><th>스스로 점검해요</th><th colspan="3">별점</th></tr>
+      <tr><td>계획한 비율대로 봉투를 나누었다.</td><td colspan="3" class="stars">☆☆☆</td></tr>
+      <tr><td>사기 전에 포기할 것을 먼저 생각했다.</td><td colspan="3" class="stars">☆☆☆</td></tr>
+      <tr><td>모으기 봉투의 돈을 끝까지 지켰다.</td><td colspan="3" class="stars">☆☆☆</td></tr></table>
+    <p class="mini" style="margin-top:2mm">가장 잘한 점과 다음 달에 바꿀 점</p><div class="lines l2"></div></div>
+  <div class="box soft"><span class="mini" style="color:var(--p-ink)">보호자 확인 · 한 말씀:</span><div class="lines l1"></div></div>
+</section>
+
+</div></div>
+<script>
+(() => {
+  const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  if (!inFrame) {
+    document.getElementById("btn-print-all").hidden = false;
+    document.getElementById("btn-print-student").hidden = false;
+    document.getElementById("print-note").textContent = "A4 세로로 인쇄돼요. 인쇄 설정에서 여백은 '없음', '배경 그래픽'은 켜 주세요.";
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.id === "btn-print-all") { document.body.classList.remove("only-student"); try { window.print(); } catch (err) {} }
+    if (b.id === "btn-print-student") { document.body.classList.add("only-student"); try { window.print(); } catch (err) {} document.body.classList.remove("only-student"); }
+  });
+})();
+</script>
+</body>
+</html>
