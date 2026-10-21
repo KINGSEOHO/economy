@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>조개섬 시장</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<style>
+/* Layout: 교실 프로젝터용 — 왼쪽은 진행 순서 레일, 가운데는 큰 무대(이야기·타이머·우리 반 기록) */
+:root {
+  --bg: #E8F3F1;
+  --surface: #FFFFFF;
+  --surface-2: #D8EBE7;
+  --ink: #0F2A3A;
+  --muted: #4A6575;
+  --line: #C3DAD6;
+  --accent: #0A7C83;
+  --accent-ink: #FFFFFF;
+  --shell: #D98E12;
+  --shell-soft: #FBEED3;
+  --danger: #B93A26;
+  --hl: #FFFFFF;
+
+  --c-fish: #2B76C9;
+  --c-fruit: #D4402F;
+  --c-wood: #2C8F55;
+  --c-salt: #7D8C9C;
+  --c-cloth: #8B53C4;
+  --c-pot: #CC7E14;
+
+  /* 인쇄물은 화면 테마와 상관없이 종이 색으로 */
+  --paper: #FFFFFF;
+  --paper-ink: #1B2730;
+  --paper-line: #B9C3C9;
+  --p-fish: #2B76C9;
+  --p-fruit: #D4402F;
+  --p-wood: #2C8F55;
+  --p-salt: #7D8C9C;
+  --p-cloth: #8B53C4;
+  --p-pot: #CC7E14;
+  --p-shell: #D98E12;
+
+  --f-display: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-body: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-ui: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #07161E; --surface: #0E2230; --surface-2: #143041; --ink: #E3F0F1; --muted: #8DA9B4;
+    --line: #22404F; --accent: #37BEC3; --accent-ink: #032329; --shell: #F0B443; --shell-soft: #3A2C10;
+    --danger: #F07A63;
+    --c-fish: #5A9BE6; --c-fruit: #EF6A58; --c-wood: #4DB878; --c-salt: #9AA9B8; --c-cloth: #AD7FE0; --c-pot: #E59C3A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #07161E; --surface: #0E2230; --surface-2: #143041; --ink: #E3F0F1; --muted: #8DA9B4;
+  --line: #22404F; --accent: #37BEC3; --accent-ink: #032329; --shell: #F0B443; --shell-soft: #3A2C10;
+  --danger: #F07A63;
+  --c-fish: #5A9BE6; --c-fruit: #EF6A58; --c-wood: #4DB878; --c-salt: #9AA9B8; --c-cloth: #AD7FE0; --c-pot: #E59C3A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--surface);
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; line-height: 1.25; text-wrap: balance; margin: 0; }
+
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* ---------- 상단 ---------- */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.top-in { display: flex; align-items: center; gap: 12px 20px; flex-wrap: wrap; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-size: 1.45rem; color: var(--ink); white-space: nowrap; }
+.brand .ico { width: 34px; height: 34px; color: var(--shell); }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; flex: 1 1 auto; }
+.tab {
+  border: 0; background: transparent; padding: 8px 14px; border-radius: 999px;
+  font-family: var(--f-ui); font-weight: 600; font-size: .95rem; color: var(--muted);
+}
+.tab:hover { background: var(--surface-2); color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.top-actions { display: flex; gap: 8px; }
+.btn {
+  border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px;
+  padding: 7px 12px; font-family: var(--f-ui); font-weight: 600; font-size: .9rem;
+}
+.btn:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--shell-soft); border-color: var(--shell); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { color: var(--danger); }
+.btn.big { padding: 12px 20px; font-size: 1.05rem; border-radius: 12px; }
+
+.banner { background: var(--shell-soft); border-bottom: 1px solid var(--line); }
+.banner-in { display: flex; gap: 10px 16px; align-items: center; flex-wrap: wrap; padding-block: 8px; font-family: var(--f-ui); font-size: .92rem; }
+.banner b { color: var(--shell); }
+
+.view { padding-block: 20px 48px; }
+
+/* ---------- 진행 ---------- */
+#view-play { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 24px; align-items: start; }
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 74px); max-height: calc(100vh - 100px); overflow: auto; }
+.rail h2 { font-family: var(--f-ui); font-weight: 700; font-size: .78rem; letter-spacing: .08em; color: var(--muted); margin: 14px 0 6px 6px; }
+.rail h2:first-child { margin-top: 0; }
+.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.step {
+  width: 100%; text-align: left; border: 0; background: transparent; border-radius: 10px;
+  padding: 7px 10px; display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center;
+  font-family: var(--f-ui); font-size: .9rem; color: var(--ink);
+}
+.step:hover { background: var(--surface-2); }
+.step .n { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .75rem; font-weight: 700; background: var(--surface-2); color: var(--muted); }
+.step .m { font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.step.kind-round .n { background: var(--shell-soft); color: var(--shell); }
+.step[aria-current="step"] { background: var(--surface); box-shadow: inset 0 0 0 2px var(--accent); }
+.step[aria-current="step"] .n { background: var(--accent); color: var(--accent-ink); }
+
+.stage { display: grid; gap: 20px; min-width: 0; }
+.stage-head { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--f-ui); font-weight: 700; font-size: .85rem; letter-spacing: .06em; color: var(--accent); }
+.stage-head h1 { font-size: clamp(2rem, 1.3rem + 2.4vw, 3.4rem); }
+.stage-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.stage-grid.single { grid-template-columns: minmax(0, 1fr); }
+.col { display: grid; gap: 16px; min-width: 0; }
+
+.say { display: grid; gap: 12px; font-size: clamp(1.2rem, 1rem + .8vw, 1.75rem); line-height: 1.55; max-width: 34em; }
+.say p { margin: 0; }
+.say .quote { font-family: var(--f-display); color: var(--accent); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; min-width: 0; }
+.panel h3 { font-size: 1.25rem; margin-bottom: 10px; }
+.panel .sub { font-family: var(--f-ui); font-size: .85rem; color: var(--muted); margin: -6px 0 12px; }
+
+.rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: clamp(1.05rem, .95rem + .4vw, 1.35rem); }
+.rules li { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: start; }
+.rules li::before { content: ""; width: 22px; height: 22px; margin-top: .25em; border-radius: 50% 50% 50% 8px; background: var(--shell); }
+.qs { margin: 0; padding-left: 1.4em; display: grid; gap: 10px; font-size: clamp(1.1rem, 1rem + .5vw, 1.45rem); }
+.qs li::marker { font-family: var(--f-display); color: var(--accent); }
+
+.concepts { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.concept { border-radius: 12px; padding: 14px 16px; background: var(--surface-2); }
+.concept b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; color: var(--accent); margin-bottom: 4px; }
+.concept span { font-size: 1.02rem; }
+.concept small { display: block; margin-top: 4px; font-family: var(--f-ui); color: var(--muted); }
+
+.note { border: 2px dashed var(--shell); background: var(--shell-soft); border-radius: var(--r); padding: 14px 18px; font-family: var(--f-ui); font-size: .95rem; }
+.note h3 { font-family: var(--f-ui); font-weight: 700; font-size: .85rem; letter-spacing: .06em; color: var(--shell); margin-bottom: 6px; }
+.note ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+
+.stage-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line); }
+.kbd-hint { font-family: var(--f-ui); font-size: .8rem; color: var(--muted); align-self: center; }
+
+/* 타이머 */
+.timer { display: grid; gap: 10px; justify-items: center; text-align: center; }
+.timer .digits { font-family: var(--f-display); font-size: clamp(3.4rem, 2rem + 5vw, 6.5rem); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.timer.small .digits { font-size: clamp(2.2rem, 1.6rem + 2vw, 3.2rem); }
+.timer .bar { width: 100%; height: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.timer .bar i { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: left; transition: transform .4s linear; }
+.timer.low .digits { color: var(--danger); }
+.timer.low .bar i { background: var(--danger); }
+.timer.done .digits { animation: blink 1s steps(2, start) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+.timer .ctl { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+/* 마을 */
+.towns { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.town { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.town .ico { width: 44px; height: 44px; }
+.town b { font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; display: block; }
+.town small { font-family: var(--f-ui); font-size: .78rem; color: var(--muted); }
+
+.ico { display: block; fill: currentColor; }
+.ico .hl { fill: var(--hl); }
+.ico .hl-s { fill: none; stroke: var(--hl); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ico .st { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; }
+
+/* 기록 타일 */
+.tally { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tile { border-radius: 12px; background: var(--surface-2); padding: 10px; display: grid; gap: 6px; justify-items: center; text-align: center; }
+.tile .ico { width: 36px; height: 36px; }
+.tile .nm { font-family: var(--f-ui); font-size: .82rem; font-weight: 600; }
+.tile .cnt { font-family: var(--f-display); font-size: 2.3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.tile .pm { display: flex; gap: 6px; }
+.pmb { width: 38px; height: 34px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--f-ui); font-weight: 700; font-size: 1.1rem; line-height: 1; }
+.pmb.plus { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tally-total { font-family: var(--f-ui); font-size: .9rem; color: var(--muted); margin-top: 10px; text-align: right; }
+.tally-total b { font-family: var(--f-display); font-weight: 400; font-size: 1.4rem; color: var(--ink); }
+
+.prices { display: grid; gap: 8px; }
+.prow { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; }
+.prow .ico { width: 30px; height: 30px; }
+.prow .nm { font-family: var(--f-ui); font-weight: 600; }
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper input { width: 64px; height: 36px; text-align: center; border-radius: 9px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--f-display); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.stepper .unit { font-family: var(--f-ui); font-size: .85rem; color: var(--muted); width: 2.2em; }
+
+/* 사건 카드 */
+.events { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ecard { perspective: 900px; border: 0; padding: 0; background: none; aspect-ratio: 3 / 4; max-width: 100%; }
+.ecard .in { position: relative; width: 100%; height: 100%; transition: transform .7s cubic-bezier(.3,1.4,.5,1); transform-style: preserve-3d; }
+.ecard .face { position: absolute; inset: 0; border-radius: 14px; backface-visibility: hidden; display: grid; place-items: center; padding: 10px; text-align: center; }
+.ecard .back { background: var(--ink); color: var(--surface); font-family: var(--f-display); font-size: clamp(1.2rem, 1rem + 1vw, 2rem); }
+.ecard .back .ico { width: 40%; height: auto; color: var(--shell); margin: 0 auto 6px; }
+.ecard .front { transform: rotateY(180deg); background: var(--surface); border: 3px solid var(--shell); }
+.ecard.flipped .in { transform: rotateY(180deg); }
+.ecard:disabled { cursor: default; }
+.ecard.dim { opacity: .35; }
+.event-big { display: grid; grid-template-columns: 96px 1fr; gap: 18px; align-items: center; padding: 20px; border-radius: var(--r); border: 3px solid var(--shell); background: var(--surface); animation: pop .6s cubic-bezier(.3,1.5,.5,1); }
+.event-big .ico { width: 96px; height: 96px; }
+.event-big h3 { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem); margin-bottom: 4px; }
+.event-big p { margin: 0; font-size: clamp(1.1rem, 1rem + .5vw, 1.45rem); }
+@keyframes pop { from { transform: scale(.85); opacity: .2; } to { transform: none; opacity: 1; } }
+
+/* 욕구 순환도 */
+.cycle-wrap { display: grid; gap: 12px; justify-items: center; }
+.cycle-wrap > svg { width: 100%; max-width: 420px; height: auto; }
+.cycle-wrap .legend { font-family: var(--f-ui); font-size: .88rem; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.legend i { display: inline-block; width: 26px; height: 0; border-top: 3px solid var(--ink); vertical-align: middle; margin-right: 6px; }
+.legend i.dash { border-top-style: dashed; }
+
+/* 조개 선물 */
+.gift { display: grid; justify-items: center; gap: 10px; text-align: center; }
+.gift .num { font-family: var(--f-display); font-size: clamp(4rem, 2rem + 7vw, 8rem); line-height: 1; color: var(--shell); font-variant-numeric: tabular-nums; }
+.gift .pile { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; max-width: 420px; min-height: 30px; }
+.gift .pile .ico { width: 22px; height: 22px; color: var(--shell); animation: drop .5s ease-out both; }
+@keyframes drop { from { transform: translateY(-18px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.starters { display: grid; gap: 10px; }
+.starter { font-family: var(--f-display); font-size: clamp(1.3rem, 1.1rem + .8vw, 1.9rem); padding: 12px 16px; border-radius: 12px; background: var(--surface-2); }
+.starter span { color: var(--muted); letter-spacing: .1em; }
+
+/* ---------- 차트 ---------- */
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .ax { font-family: var(--f-ui); font-size: 15px; fill: var(--muted); }
+.chart .lbl { font-family: var(--f-display); font-size: 17px; fill: var(--ink); }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .base { stroke: var(--muted); stroke-width: 1.5; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--f-ui); font-size: .85rem; margin-top: 8px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.chart-legend i.avg { height: 4px; width: 18px; background: var(--ink); border-radius: 2px; }
+.empty { font-family: var(--f-ui); color: var(--muted); padding: 24px; text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; }
+
+.insights { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.insight { border-radius: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); }
+.insight .big { font-family: var(--f-display); font-size: 2.4rem; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.insight p { margin: 4px 0 0; font-size: 1.02rem; }
+.insight small { font-family: var(--f-ui); color: var(--muted); }
+
+.results { display: grid; gap: 20px; }
+.results-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+
+/* ---------- 기록판 ---------- */
+.board { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: start; }
+.tbl-wrap { overflow-x: auto; }
+table.rec { border-collapse: collapse; width: 100%; font-family: var(--f-ui); font-size: .95rem; }
+table.rec th, table.rec td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
+table.rec th { font-weight: 600; color: var(--muted); font-size: .82rem; }
+table.rec td:first-child, table.rec th:first-child { text-align: left; }
+table.rec .who { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+table.rec .who .ico { width: 24px; height: 24px; }
+table.rec input { width: 58px; height: 34px; text-align: center; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--f-display); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+table.rec tfoot td { font-weight: 700; border-bottom: 0; }
+.board-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+/* ---------- 수업 안내 ---------- */
+.guide { display: grid; gap: 28px; max-width: 1100px; }
+.guide-hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+.guide-hero h1 { font-size: clamp(2.2rem, 1.4rem + 2.6vw, 3.6rem); }
+.guide-hero .lead { font-size: 1.2rem; margin: 10px 0 0; max-width: 32em; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.fact { padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.fact small { display: block; font-family: var(--f-ui); font-size: .78rem; letter-spacing: .06em; color: var(--muted); }
+.fact b { font-family: var(--f-display); font-weight: 400; font-size: 1.2rem; }
+.guide section { display: grid; gap: 12px; }
+.guide h2 { font-size: 1.8rem; }
+.guide p { margin: 0; max-width: 46em; }
+.guide .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.guide ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.goals { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.goal { padding: 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.goal .tag { font-family: var(--f-ui); font-size: .78rem; font-weight: 700; color: var(--shell); letter-spacing: .06em; }
+.goal b { font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; }
+table.flow { border-collapse: collapse; width: 100%; font-size: .95rem; }
+table.flow th, table.flow td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.flow th { font-family: var(--f-ui); font-size: .8rem; color: var(--muted); font-weight: 600; }
+table.flow td.t { font-family: var(--f-ui); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--muted); }
+table.flow td.s { font-family: var(--f-display); white-space: nowrap; }
+table.flow tr.sess td { background: var(--surface-2); font-family: var(--f-ui); font-weight: 700; font-size: .85rem; }
+
+/* ---------- 인쇄 자료 ---------- */
+.print-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); }
+.seg button { border: 0; background: transparent; border-radius: 9px; padding: 7px 12px; font-family: var(--f-ui); font-weight: 600; font-size: .9rem; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.print-note { font-family: var(--f-ui); font-size: .9rem; color: var(--muted); margin: 12px 0 0; max-width: 60em; }
+.sheets-scroll { overflow-x: auto; margin-top: 16px; padding-bottom: 8px; }
+.sheets { display: flex; flex-direction: column; gap: 24px; zoom: .62; width: max-content; }
+
+.sheet {
+  width: 210mm; height: 297mm; padding: 8mm; background: var(--paper); color: var(--paper-ink);
+  box-shadow: 0 2px 14px rgba(0,0,0,.18); overflow: hidden; display: grid; grid-template-rows: auto 1fr; gap: 3mm;
+  font-family: var(--f-body);
+}
+.sheet .sh { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--f-ui); font-size: 9pt; color: #5b6870; border-bottom: .3mm solid var(--paper-line); padding-bottom: 1.5mm; }
+.sheet .sh b { font-family: var(--f-display); font-weight: 400; font-size: 13pt; color: var(--paper-ink); }
+.sheet .ico .hl { fill: #FFFFFF; }
+.sheet .ico .hl-s { stroke: #FFFFFF; }
+.grid-cards { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); }
+.gcard { border: .3mm dashed var(--paper-line); padding: 2.5mm; display: grid; }
+.gcard .fr { border: 2.2mm solid var(--k); border-radius: 4mm; display: grid; grid-template-rows: auto 1fr auto; justify-items: center; padding: 2mm; }
+.gcard .tn { font-family: var(--f-ui); font-size: 7.5pt; font-weight: 600; color: var(--k); justify-self: start; }
+.gcard .ico { width: 26mm; height: 26mm; color: var(--k); align-self: center; }
+.gcard .nm { font-family: var(--f-display); font-size: 22pt; line-height: 1; }
+.grid-missions { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); }
+.mcard { border: .3mm dashed var(--paper-line); padding: 2.5mm; display: grid; }
+.mcard .fr { border: .6mm solid var(--k); border-radius: 3mm; display: grid; grid-template-rows: auto auto 1fr auto; gap: 1.5mm; padding: 3mm; }
+.mcard .mtop { display: flex; justify-content: space-between; align-items: center; font-family: var(--f-ui); font-size: 8pt; font-weight: 600; }
+.mcard .chip { background: var(--k); color: #fff; padding: .6mm 2.4mm; border-radius: 9mm; }
+.mcard h4 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 15pt; line-height: 1.2; }
+.mcard .need { display: grid; gap: 1.6mm; align-content: center; }
+.mcard .need div { display: flex; align-items: center; gap: 1.5mm; font-family: var(--f-ui); font-size: 10pt; font-weight: 600; }
+.mcard .need .ico { width: 9mm; height: 9mm; }
+.mcard .need em { font-style: normal; color: #5b6870; font-weight: 400; margin-left: auto; font-size: 9pt; }
+.mcard .ok { display: flex; justify-content: space-between; align-items: center; font-family: var(--f-ui); font-size: 8pt; color: #5b6870; border-top: .3mm solid var(--paper-line); padding-top: 1.5mm; }
+.mcard .ok i { width: 9mm; height: 9mm; border: .4mm dashed #9aa5ab; border-radius: 50%; display: inline-block; }
+.grid-coins { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(7, 1fr); }
+.coin { display: grid; place-items: center; border: .2mm dashed #d4dadd; }
+.coin .c { width: 34mm; height: 34mm; border-radius: 50%; border: 1mm solid var(--p-shell); display: grid; place-items: center; align-content: center; gap: .5mm; }
+.coin .ico { width: 13mm; height: 13mm; color: var(--p-shell); }
+.coin b { font-family: var(--f-display); font-weight: 400; font-size: 15pt; line-height: 1; }
+.coin.five .c { border-width: 1.6mm; background: #FDF3DF; }
+.sheet-misc { display: grid; grid-template-rows: auto auto; gap: 5mm; align-content: start; }
+.tags { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.ptag { border: .3mm dashed var(--paper-line); padding: 2.5mm; }
+.ptag .fr { border: .8mm solid var(--k); border-radius: 3mm; padding: 3mm 4mm; display: grid; grid-template-columns: 15mm 1fr; gap: 1mm 4mm; align-items: center; }
+.ptag .ico { width: 15mm; height: 15mm; color: var(--k); grid-row: span 2; }
+.ptag h4 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 15pt; }
+.ptag .eq { font-family: var(--f-ui); font-size: 10pt; }
+.ptag .eq u { display: inline-block; width: 16mm; border-bottom: .4mm solid var(--paper-ink); text-decoration: none; }
+.ptag .rounds { grid-column: 1 / -1; display: flex; justify-content: space-between; font-family: var(--f-ui); font-size: 8.5pt; color: #5b6870; border-top: .3mm solid var(--paper-line); padding-top: 1.5mm; }
+.roles { display: grid; grid-template-columns: 1fr 1fr; }
+.role { border: .3mm dashed var(--paper-line); padding: 2.5mm; }
+.role .fr { border: .6mm solid var(--paper-ink); border-radius: 3mm; padding: 4mm; display: grid; gap: 1.5mm; }
+.role h4 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 17pt; }
+.role p { margin: 0; font-size: 10.5pt; line-height: 1.5; }
+.role small { font-family: var(--f-ui); font-size: 8pt; color: #5b6870; }
+.ws { display: grid; gap: 4mm; align-content: start; font-size: 11pt; }
+.ws h3 { font-size: 22pt; }
+.ws .name { display: flex; gap: 8mm; font-family: var(--f-ui); font-size: 10pt; }
+.ws .name u { display: inline-block; width: 30mm; border-bottom: .3mm solid var(--paper-ink); text-decoration: none; }
+.ws .q { display: grid; gap: 1.5mm; }
+.ws .q b { font-family: var(--f-display); font-weight: 400; font-size: 12.5pt; }
+.ws .lines { height: 16mm; background: repeating-linear-gradient(to bottom, transparent 0 7.6mm, #c9d1d5 7.6mm 7.9mm); }
+.ws .graph { height: 42mm; border: .3mm solid #c9d1d5; background-image: linear-gradient(#e3e8eb .25mm, transparent .25mm), linear-gradient(90deg, #e3e8eb .25mm, transparent .25mm); background-size: 6mm 6mm; position: relative; }
+.ws .graph span { position: absolute; bottom: -5mm; font-family: var(--f-ui); font-size: 8pt; color: #5b6870; }
+.ws table { border-collapse: collapse; width: 100%; font-family: var(--f-ui); font-size: 9.5pt; }
+.ws td { border: .3mm solid #c9d1d5; padding: 1.8mm 2.5mm; }
+.ws td:last-child { width: 30mm; text-align: center; letter-spacing: 2mm; color: #9aa5ab; }
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 1100px) {
+  .stage-grid, .results-grid, .board, .guide-hero, .guide .two { grid-template-columns: minmax(0, 1fr); }
+  .goals { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  #view-play { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; max-height: none; overflow: visible; }
+  .rail .sess-group { display: none; }
+  .rail .strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; }
+  .events { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sheets { zoom: .42; }
+}
+@media (min-width: 901px) { .rail .strip { display: none; } }
+.chip-step { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-family: var(--f-ui); font-size: .85rem; white-space: nowrap; }
+.chip-step[aria-current="step"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+@media (max-width: 520px) {
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .event-big { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+@page { size: A4; margin: 0; }
+@media print {
+  body { background: #fff; }
+  body::before, .top, .banner, .print-controls, .print-note, .view { display: none !important; }
+  #view-print { display: block !important; padding: 0; }
+  .sheets-scroll { overflow: visible; margin: 0; padding: 0; }
+  .sheets { zoom: 1 !important; gap: 0; }
+  .sheet { box-shadow: none; break-after: page; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in wrap">
+    <div class="brand" id="brand"></div>
+    <nav class="tabs" role="tablist" aria-label="화면">
+      <button class="tab" role="tab" data-view="play" aria-selected="true">수업 진행</button>
+      <button class="tab" role="tab" data-view="board" aria-selected="false">우리 반 기록</button>
+      <button class="tab" role="tab" data-view="chart" aria-selected="false">결과 그래프</button>
+      <button class="tab" role="tab" data-view="guide" aria-selected="false">수업 안내</button>
+      <button class="tab" role="tab" data-view="print" aria-selected="false">인쇄 자료</button>
+    </nav>
+    <div class="top-actions">
+      <button class="btn" id="btn-notes" aria-pressed="false">교사 메모</button>
+      <button class="btn" id="btn-full">전체 화면</button>
+    </div>
+  </div>
+</header>
+<div class="banner" id="banner" hidden>
+  <div class="banner-in wrap">
+    <span><b>예시 기록</b>을 보여 주고 있어요. 그래프가 어떻게 나오는지 미리 볼 수 있어요.</span>
+    <button class="btn primary" id="btn-start-class">우리 반 수업 시작하기</button>
+  </div>
+</div>
+
+<main>
+  <section class="view wrap" id="view-play">
+    <aside class="rail" id="rail"></aside>
+    <div class="stage" id="stage"></div>
+  </section>
+  <section class="view wrap" id="view-board" hidden></section>
+  <section class="view wrap" id="view-chart" hidden></section>
+  <section class="view wrap" id="view-guide" hidden></section>
+  <section class="view wrap" id="view-print" hidden></section>
+</main>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------------- 데이터 ---------------- */
+const GOODS = [
+  { id: "fish",  name: "물고기", town: "물고기 마을" },
+  { id: "fruit", name: "과일",   town: "과일 마을" },
+  { id: "wood",  name: "나무",   town: "나무 마을" },
+  { id: "salt",  name: "소금",   town: "소금 마을" },
+  { id: "cloth", name: "옷감",   town: "옷감 마을" },
+  { id: "pot",   name: "그릇",   town: "그릇 마을" },
+];
+// 핵심 설계: 마을 i는 i+1, i+2 마을의 물건만 원한다. 서로 원하는 두 마을이 하나도 없다.
+const wants = i => [(i + 1) % 6, (i + 2) % 6];
+const MISSIONS = [
+  [["생일 잔치 준비", [2, 1]], ["새 고기잡이배 만들기", [1, 2]]],
+  [["과일 창고 짓기", [2, 1]], ["과일 절임 담그기", [1, 2]]],
+  [["겨울 준비하기", [2, 1]], ["숲속 텐트 치기", [1, 2]]],
+  [["소금 자루 만들기", [2, 1]], ["소금 항아리 채우기", [1, 2]]],
+  [["염색 공방 열기", [2, 1]], ["생선 요리 대회", [1, 2]]],
+  [["가마 축제 음식", [2, 1]], ["과일 화채 만들기", [1, 2]]],
+];
+const ROUNDS = [
+  { key: "r1", short: "1R", label: "물물교환" },
+  { key: "r2", short: "2R", label: "조개 돈" },
+  { key: "r3", short: "3R", label: "사건" },
+  { key: "r4", short: "4R", label: "조개 넘침" },
+];
+const PRICE_ROUNDS = ["r2", "r3", "r4"];
+const EVENTS = [
+  { id: "typhoon", title: "태풍이 왔어요!", good: 1, icon: "wind",
+    text: "과일 마을은 과일 카드의 절반을 촌장님께 내야 해요.",
+    hint: "공급이 줄어요 → 과일 값이 오르기 쉬워요." },
+  { id: "whale", title: "고래 축제가 열려요!", good: 0, icon: "fish",
+    text: "이번 라운드에는 모든 미션에 물고기 1장이 더 필요해요. (물고기 마을은 빼고)",
+    hint: "찾는 사람이 늘어요(수요 증가) → 물고기 값이 오르기 쉬워요." },
+  { id: "harvest", title: "나무 대풍년!", good: 2, icon: "wood",
+    text: "나무 마을은 나무 카드를 8장 더 받아요.",
+    hint: "공급이 늘어요 → 나무 값이 내려가기 쉬워요." },
+  { id: "cave", title: "소금 동굴을 찾았어요!", good: 3, icon: "salt",
+    text: "모든 마을이 소금 카드를 2장씩 받아요. (소금 마을은 빼고)",
+    hint: "소금이 흔해져요 → 소금 값이 내려가기 쉬워요." },
+];
+
+const ICONS = {
+  fish: '<path d="M4 24c5-8 15-12 25-8 2 .8 4 2 5.5 3.2L43 13v22l-8.5-6.2C33 30 31 31.2 29 32 19 36 9 32 4 24z"/><circle class="hl" cx="13.5" cy="22" r="2.4"/><path class="hl-s" d="M21 17.5c1.8 4 1.8 9 0 13"/>',
+  fruit: '<path d="M24 15c-3-2-6.2-2.8-9-2-6.4 1.8-9.6 8-8.6 15 1.2 8.2 7 15 12 15 2 0 3-1 5.6-1s3.6 1 5.6 1c5 0 10.8-6.8 12-15 1-7-2.2-13.2-8.6-15-2.8-.8-6 0-9 2z"/><path class="st" d="M24 15c0-4 1.2-7 4-9"/><path d="M27.5 10.5c2-4 7-5.2 10-3-1.8 4-6.4 5.2-10 3z"/><ellipse class="hl" cx="14.5" cy="24" rx="2.4" ry="4.4" opacity=".55"/>',
+  wood: '<rect x="4" y="15" width="33" height="18" rx="4"/><ellipse cx="37" cy="24" rx="6.6" ry="9"/><ellipse class="hl" cx="37" cy="24" rx="4.2" ry="6"/><ellipse cx="37" cy="24" rx="1.7" ry="2.6"/><path class="hl-s" d="M9 21h13M14 27.5h14"/>',
+  salt: '<path d="M4 41c3-10.5 10-19 20-19s17 8.5 20 19z"/><circle class="hl" cx="17" cy="34" r="1.7"/><circle class="hl" cx="26" cy="29.5" r="1.7"/><circle class="hl" cx="31.5" cy="36" r="1.7"/><path class="st" d="M14 15l2.5-4M24 13V6.5M34 15l-2.5-4"/>',
+  cloth: '<path d="M7 9h27l7 7v23H7z"/><path class="hl-s" d="M7 17c5-3 10 3 15 0s10-3 19 0M7 26c5-3 10 3 15 0s10-3 19 0M7 34c5-3 10 3 15 0s10-3 19 0"/>',
+  pot: '<path d="M17 7h14v5.5c7 3 11 9 11 15.5 0 8-8 13-18 13S6 36 6 28c0-6.5 4-12.5 11-15.5z"/><path class="hl-s" d="M10.5 24.5h27M12 30.5h24"/>',
+  shell: '<path d="M24 42c-1.8 0-3-.8-4-2L7 25C4.6 13.6 13.6 7 24 7s19.4 6.6 17 18L28 40c-1 1.2-2.2 2-4 2z"/><path class="hl-s" d="M24 39V11M24 39l-8.5-25M24 39l8.5-25M24 39L10.5 20.5M24 39l13.5-18.5"/>',
+  wind: '<path class="st" d="M5 17h24a6 6 0 1 0-6-6M5 25h34a6 6 0 1 1-6 6M5 33h16"/>',
+};
+const icon = (id, cls = "") => `<svg class="ico ${cls}" viewBox="0 0 48 48" aria-hidden="true">${ICONS[id] || ""}</svg>`;
+const gColor = i => `var(--c-${GOODS[i].id})`;
+const pColor = i => `var(--p-${GOODS[i].id})`;
+
+/* 진행 단계 — 차시별 합계 40분 */
+const STAGES = [
+  { s: 1, kind: "story", min: 5, title: "조개섬에 표류하다", extra: ["towns"],
+    say: ["커다란 폭풍이 지나간 아침, 우리 반은 작은 섬에 도착했어요.",
+          "섬에는 마을이 여섯 개 있어요. 마을마다 만들 수 있는 물건은 딱 한 가지예요.",
+          "살아남으려면 다른 마을의 물건을 모아 <b>생존 미션</b>을 해결해야 해요."],
+    note: ["모둠 6개를 마을로 정하고, 책상을 섬처럼 떨어뜨려 배치해 주세요.",
+           "이야기는 짧게, 분위기는 크게. 파도 소리를 틀어 두면 몰입이 빨라요."] },
+  { s: 1, kind: "info", min: 5, title: "마을 준비하기", extra: ["roles"],
+    say: ["마을마다 우리 물건 카드 12장과 미션 카드 1장을 받아요.",
+          "미션 카드의 물건을 다 모으면 <b>이장</b>이 촌장님(선생님)께 가져가요. 확인받으면 미션 성공!",
+          "성공하면 새 미션 카드를 받아요. 낸 물건 카드는 촌장님이 거둬 가요."],
+    note: ["미션 카드는 마을마다 A·B를 번갈아 주세요.",
+           "어떤 두 마을도 서로의 물건을 원하지 않게 짜여 있다는 사실은 아직 말하지 마세요. 1라운드에서 스스로 겪는 것이 이 수업의 핵심이에요."] },
+  { s: 1, kind: "round", round: "r1", min: 8, title: "1라운드 · 물물교환 시장", extra: ["tally"],
+    rules: ["물건은 물건하고만 바꿀 수 있어요.", "몇 개씩 바꿀지는 서로 약속해서 정해요.",
+            "억지로 빼앗거나 몰래 가져가면 안 돼요.", "상인 1명은 꼭 우리 가게를 지켜요."],
+    note: ["미션 성공을 확인할 때마다 오른쪽에서 그 마을 +1을 눌러 주세요. 기록 도우미 학생에게 맡겨도 좋아요.",
+           "아이들이 \"아무도 안 바꿔 줘요!\" 하고 답답해하는 게 정상이에요. 도와주지 말고 지켜봐 주세요."] },
+  { s: 1, kind: "talk", min: 5, title: "생각 나누기 · 왜 이렇게 힘들까?", extra: ["cycle"],
+    qs: ["내가 원하는 물건을 가진 친구가 내 물건을 원했나요?",
+         "교환에 성공했을 때는 어떤 경우였나요?",
+         "모두가 받고 싶어 하는 물건이 하나 있다면 어떨까요?"],
+    concepts: [["욕구의 엇갈림", "내가 원하는 것을 가진 사람이 마침 내 물건을 원해야만 물물교환이 돼요. 이게 딱 맞기는 아주 어려워요."]],
+    note: ["'섬의 비밀 보기'를 누르면 마을들이 서로 무엇을 원했는지 화살표로 보여요. 원하는 방향이 한쪽으로만 돌고 있어 1:1 교환이 될 수 없었다는 걸 확인하면 '아하!' 반응이 커요.",
+           "필요 없는 물건을 일단 받아 두었다가 다시 바꾼 모둠이 있다면 크게 칭찬해 주세요. 바로 그 생각이 '돈'의 시작이에요."] },
+  { s: 1, kind: "story", min: 2, title: "촌장님의 제안 · 조개 돈", extra: ["shell30"],
+    say: ["촌장님이 바닷가에서 반짝이는 조개를 한 바구니 주워 왔어요.",
+          "<span class=\"quote\">\"이제부터 조개를 돈으로 쓰자! 물건을 팔면 조개를 받고, 조개로 원하는 물건을 사는 거야.\"</span>",
+          "마을마다 조개 30개를 받아요. 우리 물건 1개를 조개 몇 개에 팔지 가격표에 적어 보세요."],
+    note: ["물건 카드를 마을마다 다시 12장으로 채우고, 조개 30개(바둑알·클립도 좋아요)를 나눠 주세요.",
+           "가격은 아이들이 정하게 두세요. 너무 비싸면 안 팔린다는 걸 스스로 겪게 돼요."] },
+  { s: 1, kind: "round", round: "r2", min: 8, title: "2라운드 · 조개 시장", extra: ["tally", "prices"],
+    rules: ["물건을 팔면 조개를 받고, 조개로 물건을 사요.", "가격은 라운드 중에 바꿔도 돼요.",
+            "미션 규칙은 1라운드와 같아요.", "회계는 우리 마을 조개를 세고 지켜요."],
+    note: ["라운드가 끝나면 마을마다 '마지막으로 판 가격'을 물어 가격 기록에 넣어 주세요. 2차시 그래프의 출발점이 돼요."] },
+  { s: 1, kind: "talk", min: 7, title: "정리 · 조개가 해 준 일", extra: ["chartMissions"],
+    qs: ["1라운드와 2라운드, 미션 성공 수가 어떻게 달라졌나요?",
+         "조개가 없었다면 우리 섬은 어떻게 됐을까요?",
+         "조개 말고 돈으로 쓸 수 있는 물건은 무엇일까요? 왜 그럴까요?"],
+    concepts: [["바꾸기가 쉬워져요", "누구에게나 조개로 사고팔 수 있어요.", "교환의 매개"],
+               ["값을 잴 수 있어요", "\"과일 1개 = 조개 4개\"처럼 값을 하나의 잣대로 비교해요.", "가치의 척도"],
+               ["모아 둘 수 있어요", "물고기는 상하지만 조개는 나중을 위해 모아 둘 수 있어요.", "가치의 저장"]],
+    note: ["실제 역사에서도 조개·소금·쌀·옷감이 돈으로 쓰였어요. 재물 화(貨), 살 매(買)처럼 돈과 관련된 한자에 조개 패(貝)가 들어 있다는 것을 보여 주면 고학년이 재미있어해요.",
+           "1차시 끝에 물건 카드와 조개를 모두 거둬 두세요. 2차시는 다시 같은 조건에서 시작해요."] },
+
+  { s: 2, kind: "story", min: 3, title: "다시 조개섬으로", extra: ["towns"],
+    say: ["지난 시간, 우리는 조개 돈 덕분에 훨씬 쉽게 미션을 해결했어요.",
+          "그런데 오늘은 섬에 뜻밖의 일들이 일어난대요.",
+          "물건 값은 어떻게 변할까요? 가격표를 잘 지켜보세요."],
+    note: ["마을마다 물건 12장, 조개 30개, 새 미션 카드를 나눠 주세요.",
+           "지난 시간 2라운드 가격을 칠판에 적어 두면 비교가 쉬워요."] },
+  { s: 2, kind: "round", round: "r3", min: 10, title: "3라운드 · 사건이 있는 시장", extra: ["event", "tally", "prices"],
+    rules: ["조개 시장 규칙은 2라운드와 같아요.", "라운드 중간에 사건이 일어나요.",
+            "사건이 일어나면 우리 마을 가격을 다시 생각해 보세요."],
+    note: ["라운드 시작 3~4분 뒤에 사건 카드를 한 장 뒤집어 주세요. 아래에서 특정 사건을 골라도 돼요.",
+           "라운드가 끝나면 마을별 마지막 판매 가격을 기록하세요."] },
+  { s: 2, kind: "talk", min: 6, title: "생각 나누기 · 값이 변한 까닭", extra: ["chartPrices"],
+    qs: ["사건 뒤에 값이 가장 많이 변한 물건은 무엇인가요?",
+         "그 물건을 판 마을은 왜 값을 바꿨나요?",
+         "태풍이 오면 실제 과일 값은 어떻게 될까요? 뉴스에서 본 적 있나요?"],
+    concepts: [["물건이 귀해지면", "사려는 사람은 그대로인데 물건이 줄면 값이 올라요.", "공급 감소"],
+               ["찾는 사람이 많아지면", "물건은 그대로인데 사려는 사람이 늘면 값이 올라요.", "수요 증가"],
+               ["물건이 넘쳐나면", "팔려는 물건이 너무 많으면 값이 내려가요.", "공급 증가"]],
+    note: ["가격은 누가 정하라고 시킨 게 아니라 사고파는 사람들 사이에서 정해졌다는 점을 짚어 주세요. 이것이 '시장'이에요."] },
+  { s: 2, kind: "story", min: 2, title: "섬 대장의 비밀", extra: ["gift"],
+    say: ["어젯밤, 섬 대장님이 몰래 조개를 잔뜩 주워 왔대요!",
+          "<span class=\"quote\">\"모두에게 조개를 선물하겠다!\"</span> 마을마다 조개를 60개씩 더 받아요.",
+          "와, 이제 우리 마을은 부자가 된 걸까요?"],
+    note: ["물건 카드는 늘리지 말고 조개만 늘려 주세요. 이게 핵심 조건이에요.",
+           "'인플레이션'이라는 말은 아직 하지 마세요. 라운드가 끝난 뒤 아이들 입에서 \"너무 비싸졌어요!\"가 먼저 나오게 해 주세요."] },
+  { s: 2, kind: "round", round: "r4", min: 8, title: "4라운드 · 조개가 넘치는 시장", extra: ["tally", "prices"],
+    rules: ["조개 시장 규칙은 그대로예요.", "조개가 많아졌으니 마음껏 사 보세요.", "가격은 언제든 바꿔도 돼요."],
+    note: ["물건 카드를 보충하지 않으면 물건이 점점 귀해져요. 라운드 시작 때 한 번만 12장으로 채워 주세요.",
+           "라운드가 끝나면 마지막 판매 가격을 기록하세요."] },
+  { s: 2, kind: "talk", min: 6, title: "정리 · 조개가 많아졌는데 왜?", extra: ["chartPrices", "inflation"],
+    qs: ["조개를 더 받았을 때 기분이 어땠나요? 지금은요?",
+         "미션 성공 수는 2라운드보다 늘었나요?",
+         "나라에서 돈을 마구 만들어 나눠 주면 어떻게 될까요?"],
+    concepts: [["인플레이션", "돈은 많아졌는데 물건은 그대로면, 물건 값이 모두 올라요.", "물가 상승"],
+               ["돈이 많다고 부자일까?", "조개 숫자보다 그 조개로 무엇을 살 수 있는지가 중요해요.", "돈의 가치"]],
+    note: ["미션 성공 수가 거의 그대로라는 점(조개는 3배인데 해결한 일은 비슷)을 그래프로 함께 확인하면 개념이 단단해져요."] },
+  { s: 2, kind: "reflect", min: 5, title: "나의 경제 한 줄", extra: ["starters"],
+    say: ["오늘 조개섬에서 알게 된 것을 한 줄로 적어 보세요.",
+          "내 용돈, 우리 동네 가게와 연결해 보면 더 좋아요."],
+    note: ["인쇄 자료의 '경제 일기'를 나눠 주세요.",
+           "잘 쓴 한 줄은 교실 게시판 '조개섬 신문'에 붙여 두면 다음 경제 수업의 도입 자료가 돼요."] },
+];
+
+const EXAMPLE = {
+  missions: { r1: [1, 0, 2, 1, 0, 1], r2: [4, 3, 5, 4, 3, 4], r3: [4, 3, 4, 5, 3, 4], r4: [4, 4, 3, 4, 4, 4] },
+  prices: { r2: [3, 4, 3, 2, 5, 4], r3: [3, 9, 3, 2, 5, 4], r4: [8, 18, 7, 6, 13, 10] },
+  event: "typhoon",
+};
+
+/* ---------------- 상태 ---------------- */
+const KEY = "jogaeseom-market-v1";
+const blank = () => ({
+  example: false, stage: 0, notes: false, view: "play",
+  missions: { r1: [0,0,0,0,0,0], r2: [0,0,0,0,0,0], r3: [0,0,0,0,0,0], r4: [0,0,0,0,0,0] },
+  prices: { r2: [null,null,null,null,null,null], r3: [null,null,null,null,null,null], r4: [null,null,null,null,null,null] },
+  event: null, printSet: "goods",
+});
+const withExample = () => Object.assign(blank(), JSON.parse(JSON.stringify(EXAMPLE)), { example: true });
+let state = null;
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(blank(), JSON.parse(raw)); } catch (e) {}
+  return withExample();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+const $ = s => document.querySelector(s);
+const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+const sum = a => a.reduce((x, y) => x + (y || 0), 0);
+const fmt = n => (Math.round(n * 10) / 10).toString();
+
+/* ---------------- 타이머 ---------------- */
+const timer = { total: 0, remain: 0, running: false, last: 0, id: null, done: false };
+let audioCtx = null;
+function setTimer(min) { stopTimer(); timer.total = timer.remain = min * 60; timer.done = false; paintTimer(); }
+function startTimer() {
+  if (timer.remain <= 0) return;
+  try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  try { navigator.wakeLock && navigator.wakeLock.request("screen").catch(() => {}); } catch (e) {}
+  timer.running = true; timer.last = performance.now();
+  timer.id = setInterval(tick, 250); paintTimer();
+}
+function stopTimer() { timer.running = false; clearInterval(timer.id); timer.id = null; paintTimer(); }
+function tick() {
+  const now = performance.now();
+  timer.remain = Math.max(0, timer.remain - (now - timer.last) / 1000); timer.last = now;
+  if (timer.remain <= 0) { stopTimer(); timer.done = true; chime(); }
+  paintTimer();
+}
+function chime() {
+  if (!audioCtx) return;
+  try {
+    [0, .35, .7].forEach((t, k) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = [660, 880, 1100][k]; o.type = "triangle";
+      g.gain.setValueAtTime(.0001, audioCtx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(.25, audioCtx.currentTime + t + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + t + .3);
+      o.connect(g).connect(audioCtx.destination); o.start(audioCtx.currentTime + t); o.stop(audioCtx.currentTime + t + .32);
+    });
+  } catch (e) {}
+}
+function paintTimer() {
+  const el = $("#timer"); if (!el) return;
+  const r = Math.ceil(timer.remain), m = Math.floor(r / 60), s = r % 60;
+  el.querySelector(".digits").textContent = `${m}:${String(s).padStart(2, "0")}`;
+  el.querySelector(".bar i").style.transform = `scaleX(${timer.total ? timer.remain / timer.total : 0})`;
+  el.classList.toggle("low", timer.remain > 0 && timer.remain <= 60);
+  el.classList.toggle("done", timer.done);
+  const b = el.querySelector("[data-t=toggle]");
+  b.textContent = timer.running ? "잠깐 멈춤" : (timer.remain < timer.total && timer.remain > 0 ? "이어서 시작" : "시작");
+}
+
+/* ---------------- 진행 화면 ---------------- */
+function renderRail() {
+  const groups = [1, 2].map(s => {
+    const items = STAGES.map((st, i) => ({ st, i })).filter(x => x.st.s === s).map(({ st, i }) =>
+      `<li><button class="step kind-${st.kind}" data-go="${i}" ${i === state.stage ? 'aria-current="step"' : ""}>
+        <span class="n">${STAGES.slice(0, i + 1).filter(x => x.s === s).length}</span><span>${st.title}</span><span class="m">${st.min}분</span></button></li>`).join("");
+    return `<div class="sess-group"><h2>${s}차시 · ${s === 1 ? "물물교환에서 조개 돈으로" : "가격은 어떻게 정해질까"}</h2><ol>${items}</ol></div>`;
+  }).join("");
+  const strip = `<div class="strip">${STAGES.map((st, i) =>
+    `<button class="chip-step" data-go="${i}" ${i === state.stage ? 'aria-current="step"' : ""}>${st.s}-${STAGES.slice(0, i + 1).filter(x => x.s === st.s).length} ${st.title.split(" · ")[0]}</button>`).join("")}</div>`;
+  $("#rail").innerHTML = groups + strip;
+  const cur = $("#rail .strip [aria-current]"); if (cur) cur.scrollIntoView({ block: "nearest", inline: "center" });
+}
+
+function renderStage() {
+  const st = STAGES[state.stage], i = state.stage;
+  const idxInSession = STAGES.slice(0, i + 1).filter(x => x.s === st.s).length;
+  const countInSession = STAGES.filter(x => x.s === st.s).length;
+  const left = [], right = [];
+
+  if (st.say) left.push(`<div class="say">${st.say.map(p => `<p>${p}</p>`).join("")}</div>`);
+  if (st.rules) left.push(`<div class="panel"><h3>이번 라운드 규칙</h3><ul class="rules">${st.rules.map(r => `<li>${r}</li>`).join("")}</ul></div>`);
+  if (st.qs) left.push(`<div class="panel"><h3>함께 생각해 봐요</h3><ol class="qs">${st.qs.map(q => `<li>${q}</li>`).join("")}</ol></div>`);
+  if (st.concepts) left.push(`<div class="concepts">${st.concepts.map(c => `<div class="concept"><b>${c[0]}</b><span>${c[1]}</span>${c[2] ? `<small>${c[2]}</small>` : ""}</div>`).join("")}</div>`);
+
+  const isRound = st.kind === "round";
+  right.push(`<div class="panel timer ${isRound ? "" : "small"}" id="timer">
+      <div class="digits">0:00</div><div class="bar"><i></i></div>
+      <div class="ctl"><button class="btn primary big" data-t="toggle">시작</button><button class="btn" data-t="plus">+1분</button><button class="btn" data-t="reset">처음부터</button></div>
+    </div>`);
+
+  for (const x of st.extra || []) {
+    if (x === "towns") left.push(townsHTML());
+    if (x === "roles") left.push(rolesHTML());
+    if (x === "tally") right.push(tallyHTML(st.round));
+    if (x === "prices") right.push(pricesHTML(st.round));
+    if (x === "cycle") right.push(`<div class="panel"><h3>섬의 비밀</h3><p class="sub">마을들은 서로 무엇을 원했을까요?</p><div id="cycle-slot"><button class="btn primary big" id="btn-cycle">섬의 비밀 보기</button></div></div>`);
+    if (x === "shell30") right.push(`<div class="panel gift"><h3>마을마다 받는 조개</h3><div class="num">30</div><div class="pile">${Array.from({ length: 30 }, (_, k) => icon("shell")).join("")}</div></div>`);
+    if (x === "gift") right.push(giftHTML());
+    if (x === "event") left.splice(st.say ? 1 : 0, 0, eventHTML());
+    if (x === "chartMissions") right.push(`<div class="panel chart"><h3>우리 반 미션 성공 수</h3>${missionsChart()}</div>`, insightsHTML(["barter"]));
+    if (x === "chartPrices") right.push(`<div class="panel chart"><h3>우리 반 물건 값 변화</h3>${pricesChart()}</div>`);
+    if (x === "inflation") right.push(insightsHTML(["inflation", "missions4"]));
+    if (x === "starters") left.push(`<div class="starters">${["돈이 없다면", "물건 값이 오르는 까닭은", "돈이 많아져도"].map(t => `<div class="starter">${t} <span>__________</span></div>`).join("")}</div>`);
+  }
+  if (st.extra && st.extra.includes("chartPrices") && !st.extra.includes("inflation")) right.push(insightsHTML(["event"]));
+
+  const single = !right.length;
+  const prev = STAGES[i - 1], next = STAGES[i + 1];
+  $("#stage").innerHTML = `
+    <div class="stage-head">
+      <span class="eyebrow">${st.s}차시 · ${idxInSession}/${countInSession} · ${st.min}분</span>
+      <h1>${st.title}</h1>
+    </div>
+    <div class="stage-grid ${single ? "single" : ""}"><div class="col">${left.join("")}</div>${single ? "" : `<div class="col">${right.join("")}</div>`}</div>
+    <div class="note" id="note" ${state.notes ? "" : "hidden"}><h3>교사 메모 · 학생 화면에서는 꺼 두세요</h3><ul>${st.note.map(n => `<li>${n}</li>`).join("")}</ul>${st.extra && st.extra.includes("event") ? eventPickerHTML() : ""}</div>
+    <div class="stage-nav">
+      <button class="btn big" data-step="-1" ${prev ? "" : "disabled"}>← ${prev ? prev.title.split(" · ")[0] : "처음"}</button>
+      <span class="kbd-hint">키보드 ← → 로도 넘길 수 있어요</span>
+      <button class="btn big primary" data-step="1" ${next ? "" : "disabled"}>${next ? next.title.split(" · ")[0] : "끝"} →</button>
+    </div>`;
+  setTimer(st.min);
+}
+
+function townsHTML() {
+  return `<div class="towns">${GOODS.map((g, i) => `<div class="town" style="color:${gColor(i)}">${icon(g.id)}<div><b style="color:var(--ink)">${g.town}</b><small>${g.name}을(를) 만들어요</small></div></div>`).join("")}</div>`;
+}
+const ROLES = [
+  ["이장", "미션 카드를 챙기고, 물건이 다 모이면 촌장님께 확인받아요.", "1명"],
+  ["상인", "우리 가게에 남아 우리 물건을 팔고 바꿔요.", "1명"],
+  ["탐험가", "다른 마을을 돌며 필요한 물건을 구해 와요.", "2명"],
+  ["회계", "우리 마을 조개를 세고 지켜요. 2라운드부터 일해요.", "1명 · 4명 모둠은 이장이 함께"],
+];
+function rolesHTML() {
+  return `<div class="concepts">${ROLES.map(r => `<div class="concept"><b>${r[0]}</b><span>${r[1]}</span><small>${r[2]}</small></div>`).join("")}</div>`;
+}
+function tallyHTML(rk) {
+  const arr = state.missions[rk];
+  return `<div class="panel"><h3>미션 성공 기록</h3><p class="sub">${ROUNDS.find(r => r.key === rk).short} · 촌장님 확인을 받을 때마다 +1</p>
+    <div class="tally">${GOODS.map((g, i) => `<div class="tile"><span style="color:${gColor(i)}">${icon(g.id)}</span><span class="nm">${g.town}</span>
+      <span class="cnt" id="cnt-${rk}-${i}">${arr[i]}</span>
+      <span class="pm"><button class="pmb" data-m="${rk},${i},-1" aria-label="${g.town} 1 빼기">−</button><button class="pmb plus" data-m="${rk},${i},1" aria-label="${g.town} 1 더하기">+</button></span></div>`).join("")}</div>
+    <div class="tally-total">이번 라운드 합계 <b id="tot-${rk}">${sum(arr)}</b>번</div></div>`;
+}
+function pricesHTML(rk) {
+  return `<div class="panel"><h3>마지막 판매 가격</h3><p class="sub">라운드가 끝나면 마을마다 물어서 적어요 · 물건 1개당 조개 수</p>
+    <div class="prices">${GOODS.map((g, i) => `<div class="prow"><span style="color:${gColor(i)}">${icon(g.id)}</span><span class="nm">${g.name}</span>
+      <span class="stepper"><button class="pmb" data-p="${rk},${i},-1" aria-label="${g.name} 가격 내리기">−</button>
+      <input id="price-${rk}-${i}" inputmode="numeric" data-pi="${rk},${i}" value="${state.prices[rk][i] ?? ""}" placeholder="–" aria-label="${g.name} 가격">
+      <button class="pmb" data-p="${rk},${i},1" aria-label="${g.name} 가격 올리기">+</button><span class="unit">조개</span></span></div>`).join("")}</div></div>`;
+}
+function eventHTML() {
+  const ev = EVENTS.find(e => e.id === state.event);
+  if (ev) {
+    return `<div class="event-big"><span style="color:${gColor(ev.good)}">${icon(ev.icon)}</span><div><h3>${ev.title}</h3><p>${ev.text}</p></div></div>`;
+  }
+  return `<div class="panel"><h3>사건 카드</h3><p class="sub">선생님이 신호를 주면 한 장을 뒤집어요</p>
+    <div class="events">${[0, 1, 2, 3].map(k => `<button class="ecard" data-ev-pick="${k}" aria-label="사건 카드 ${k + 1} 뒤집기"><span class="in">
+      <span class="face back"><span>${icon("shell")}사건 ${k + 1}</span></span><span class="face front"></span></span></button>`).join("")}</div></div>`;
+}
+function eventPickerHTML() {
+  return `<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><b>사건 직접 고르기:</b>
+    ${EVENTS.map(e => `<button class="btn" data-ev="${e.id}" ${state.event === e.id ? 'aria-pressed="true"' : ""}>${e.title.replace(/!$/, "")}</button>`).join("")}
+    <button class="btn" data-ev="">다시 덮기</button></div>
+    ${state.event ? `<p style="margin:8px 0 0">예상되는 변화: ${EVENTS.find(e => e.id === state.event).hint}</p>` : ""}`;
+}
+function giftHTML() {
+  return `<div class="panel gift" id="gift"><h3>마을마다 가진 조개</h3><div class="num" id="gift-num">30</div>
+    <div class="pile" id="gift-pile"></div><button class="btn primary big" id="btn-gift">조개 나눠 주기</button></div>`;
+}
+
+function cycleSVG() {
+  const cx = 210, cy = 200, R = 140, nr = 34;
+  const pos = GOODS.map((g, i) => { const a = -Math.PI / 2 + i * Math.PI / 3; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  let lines = "";
+  GOODS.forEach((g, i) => {
+    wants(i).forEach((j, k) => {
+      const [x1, y1] = pos[i], [x2, y2] = pos[j];
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+      const sx = x1 + dx / L * (nr + 4), sy = y1 + dy / L * (nr + 4), ex = x2 - dx / L * (nr + 10), ey = y2 - dy / L * (nr + 10);
+      lines += `<line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" style="stroke:${gColor(i)}" stroke-width="3" ${k ? 'stroke-dasharray="7 6"' : ""} marker-end="url(#ah${i})"/>`;
+    });
+  });
+  const marks = GOODS.map((g, i) => `<marker id="ah${i}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:${gColor(i)}"/></marker>`).join("");
+  const nodes = GOODS.map((g, i) => { const [x, y] = pos[i];
+    return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="${nr}" style="fill:var(--surface);stroke:${gColor(i)}" stroke-width="3"/>
+      <g transform="translate(-17 -24)" style="color:${gColor(i)}"><svg class="ico" width="34" height="34" viewBox="0 0 48 48">${ICONS[g.id]}</svg></g>
+      <text y="22" text-anchor="middle" font-size="14" style="font-family:var(--f-display);fill:var(--ink)">${g.name}</text></g>`; }).join("");
+  return `<svg viewBox="0 0 420 400" role="img" aria-label="마을마다 원하는 물건의 방향. 물고기는 과일과 나무를, 과일은 나무와 소금을 원하는 식으로 한 방향으로만 돌아요."><defs>${marks}</defs>${lines}${nodes}</svg>`;
+}
+
+/* ---------------- 차트 ---------------- */
+function missionsChart() {
+  const W = 640, H = 300, L = 40, Rm = 14, T = 26, B = 46;
+  const totals = ROUNDS.map(r => sum(state.missions[r.key]));
+  if (!sum(totals)) return `<div class="empty">미션 성공을 기록하면 여기에 막대그래프가 그려져요.</div>`;
+  const max = Math.max(4, Math.ceil(Math.max(...totals) / 4) * 4);
+  const y = v => T + (H - T - B) * (1 - v / max);
+  const bw = (W - L - Rm) / ROUNDS.length;
+  let g = "";
+  for (let v = 0; v <= max; v += max / 4) g += `<line class="grid" x1="${L}" x2="${W - Rm}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  ROUNDS.forEach((r, k) => {
+    const x = L + k * bw + bw * .2, w = bw * .6; let acc = 0;
+    state.missions[r.key].forEach((v, i) => { if (!v) return;
+      g += `<rect x="${x}" y="${y(acc + v)}" width="${w}" height="${y(acc) - y(acc + v)}" style="fill:${gColor(i)};stroke:var(--surface)" stroke-width="1.5"/>`; acc += v; });
+    g += `<text class="lbl" x="${x + w / 2}" y="${y(acc) - 8}" text-anchor="middle">${acc}</text>`;
+    g += `<text class="ax" x="${x + w / 2}" y="${H - B + 20}" text-anchor="middle">${r.short} ${r.label}</text>`;
+  });
+  g += `<line class="base" x1="${L}" x2="${W - Rm}" y1="${y(0)}" y2="${y(0)}"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="라운드별 미션 성공 수: ${ROUNDS.map((r, k) => `${r.label} ${totals[k]}번`).join(", ")}">${g}</svg>${legend(false)}`;
+}
+function pricesChart() {
+  const rounds = PRICE_ROUNDS.filter(rk => state.prices[rk].some(v => v != null));
+  if (!rounds.length) return `<div class="empty">2라운드부터 마지막 판매 가격을 기록하면 여기에 꺾은선그래프가 그려져요.</div>`;
+  const W = 640, H = 320, L = 40, Rm = 60, T = 20, B = 46;
+  const all = rounds.flatMap(rk => state.prices[rk].filter(v => v != null));
+  const max = Math.max(4, Math.ceil(Math.max(...all) / 4) * 4);
+  const y = v => T + (H - T - B) * (1 - v / max);
+  const xs = PRICE_ROUNDS.map((_, k) => L + 30 + k * ((W - L - Rm - 60) / 2));
+  const lbl = { r2: "2R 조개 돈", r3: "3R 사건", r4: "4R 조개 넘침" };
+  let g = "";
+  for (let v = 0; v <= max; v += max / 4) g += `<line class="grid" x1="${L}" x2="${W - Rm + 20}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  PRICE_ROUNDS.forEach((rk, k) => { g += `<text class="ax" x="${xs[k]}" y="${H - B + 22}" text-anchor="middle" ${rounds.includes(rk) ? "" : 'opacity=".45"'}>${lbl[rk]}</text>`; });
+  GOODS.forEach((gd, i) => {
+    const pts = PRICE_ROUNDS.map((rk, k) => [xs[k], state.prices[rk][i]]).filter(p => p[1] != null);
+    if (!pts.length) return;
+    g += `<polyline points="${pts.map(p => `${p[0]},${y(p[1])}`).join(" ")}" style="fill:none;stroke:${gColor(i)}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>`;
+    pts.forEach(p => { g += `<circle cx="${p[0]}" cy="${y(p[1])}" r="4.5" style="fill:${gColor(i)};stroke:var(--surface)" stroke-width="1.5"/>`; });
+  });
+  const avgPts = PRICE_ROUNDS.map((rk, k) => { const v = state.prices[rk].filter(x => x != null); return v.length ? [xs[k], sum(v) / v.length] : null; }).filter(Boolean);
+  if (avgPts.length) {
+    g += `<polyline points="${avgPts.map(p => `${p[0]},${y(p[1])}`).join(" ")}" style="fill:none;stroke:var(--ink)" stroke-width="5" stroke-dasharray="2 8" stroke-linecap="round"/>`;
+    avgPts.forEach(p => { g += `<circle cx="${p[0]}" cy="${y(p[1])}" r="6" style="fill:var(--ink)"/>`; });
+    const lp = avgPts[avgPts.length - 1];
+    g += `<text class="lbl" x="${lp[0] + 12}" y="${y(lp[1]) + 6}">평균 ${fmt(lp[1])}</text>`;
+  }
+  g += `<line class="base" x1="${L}" x2="${W - Rm + 20}" y1="${y(0)}" y2="${y(0)}"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="물건별 판매 가격 변화">${g}</svg>${legend(true)}`;
+}
+function legend(avg) {
+  return `<div class="chart-legend">${GOODS.map((g, i) => `<span><i style="background:${gColor(i)}"></i>${g.name}</span>`).join("")}${avg ? `<span><i class="avg"></i>평균 가격</span>` : ""}</div>`;
+}
+function insightsHTML(which) {
+  const out = [];
+  const t = k => sum(state.missions[k]);
+  const avg = rk => { const v = state.prices[rk].filter(x => x != null); return v.length ? sum(v) / v.length : null; };
+  if (which.includes("barter")) {
+    const a = t("r1"), b = t("r2");
+    if (a || b) {
+      out.push(a ? `<div class="insight"><div class="big">${fmt(b / a)}배</div><p>조개 돈을 쓰자 미션을 ${a}번에서 ${b}번으로 더 많이 해결했어요.</p><small>1라운드 → 2라운드</small></div>`
+                 : `<div class="insight"><div class="big">0 → ${b}</div><p>물물교환으로는 한 번도 못 했던 미션을 조개 돈으로 ${b}번 해결했어요.</p><small>1라운드 → 2라운드</small></div>`);
+    }
+  }
+  if (which.includes("event")) {
+    const ev = EVENTS.find(e => e.id === state.event);
+    if (ev) {
+      const p2 = state.prices.r2[ev.good], p3 = state.prices.r3[ev.good];
+      if (p2 != null && p3 != null) {
+        const d = p3 - p2;
+        out.push(`<div class="insight"><div class="big">${p2} → ${p3}</div><p>'${ev.title.replace(/!$/, "")}' 뒤에 ${GOODS[ev.good].name} 값이 ${d > 0 ? `조개 ${d}개 올랐어요` : d < 0 ? `조개 ${-d}개 내렸어요` : "그대로였어요"}.</p><small>${ev.hint}</small></div>`);
+      } else out.push(`<div class="insight"><p>'${ev.title.replace(/!$/, "")}' 사건이 일어났어요. 2·3라운드 ${GOODS[ev.good].name} 가격을 기록하면 변화를 비교해 줄게요.</p></div>`);
+    }
+  }
+  if (which.includes("inflation")) {
+    const a = avg("r2"), b = avg("r4");
+    if (a && b) out.push(`<div class="insight"><div class="big">${fmt(b / a)}배</div><p>조개를 3배로 늘렸더니 물건 값이 평균 ${fmt(a)}개에서 ${fmt(b)}개로 올랐어요.</p><small>2라운드 → 4라운드 평균 가격</small></div>`);
+  }
+  if (which.includes("missions4")) {
+    const a = t("r2"), b = t("r4");
+    if (a || b) out.push(`<div class="insight"><div class="big">${a} → ${b}</div><p>조개는 30개에서 90개가 됐지만 해결한 미션은 ${Math.abs(b - a) <= 2 ? "거의 그대로예요" : b > a ? "조금 늘었어요" : "오히려 줄었어요"}.</p><small>2라운드 → 4라운드 미션 성공 수</small></div>`);
+  }
+  return out.length ? `<div class="insights">${out.join("")}</div>` : "";
+}
+
+/* ---------------- 다른 화면 ---------------- */
+function renderBoard() {
+  const mRows = GOODS.map((g, i) => `<tr><td><span class="who"><span style="color:${gColor(i)}">${icon(g.id)}</span>${g.town}</span></td>
+    ${ROUNDS.map(r => `<td><input id="bm-${r.key}-${i}" inputmode="numeric" data-bm="${r.key},${i}" value="${state.missions[r.key][i]}" aria-label="${g.town} ${r.short} 미션"></td>`).join("")}
+    <td><b>${ROUNDS.reduce((a, r) => a + state.missions[r.key][i], 0)}</b></td></tr>`).join("");
+  const pRows = GOODS.map((g, i) => `<tr><td><span class="who"><span style="color:${gColor(i)}">${icon(g.id)}</span>${g.name}</span></td>
+    ${PRICE_ROUNDS.map(rk => `<td><input id="bp-${rk}-${i}" inputmode="numeric" data-pi="${rk},${i}" value="${state.prices[rk][i] ?? ""}" placeholder="–" aria-label="${g.name} ${rk} 가격"></td>`).join("")}</tr>`).join("");
+  $("#view-board").innerHTML = `<div class="board">
+    <div class="panel"><h3>미션 성공 수</h3><p class="sub">라운드 중에는 '수업 진행'의 +1 버튼이 더 편해요</p>
+      <div class="tbl-wrap"><table class="rec"><thead><tr><th>마을</th>${ROUNDS.map(r => `<th>${r.short}<br>${r.label}</th>`).join("")}<th>합계</th></tr></thead>
+      <tbody>${mRows}</tbody><tfoot><tr><td>합계</td>${ROUNDS.map(r => `<td>${sum(state.missions[r.key])}</td>`).join("")}<td>${ROUNDS.reduce((a, r) => a + sum(state.missions[r.key]), 0)}</td></tr></tfoot></table></div></div>
+    <div class="panel"><h3>마지막 판매 가격</h3><p class="sub">물건 1개당 조개 수 · 비워 두면 그래프에서 빠져요</p>
+      <div class="tbl-wrap"><table class="rec"><thead><tr><th>물건</th><th>2R<br>조개 돈</th><th>3R<br>사건</th><th>4R<br>조개 넘침</th></tr></thead><tbody>${pRows}</tbody></table></div>
+      <p class="sub" style="margin:12px 0 0">3라운드 사건: <b>${state.event ? EVENTS.find(e => e.id === state.event).title : "아직 없음"}</b></p>
+      <div class="board-actions">
+        <button class="btn danger" id="btn-reset">기록 모두 지우기</button>
+        <button class="btn" id="btn-example">예시 기록 불러오기</button>
+      </div></div></div>`;
+}
+function renderChart() {
+  $("#view-chart").innerHTML = `<div class="results">
+    <div class="stage-head"><span class="eyebrow">우리 반이 만든 데이터</span><h1>조개섬에서 무슨 일이 있었을까?</h1></div>
+    ${insightsHTML(["barter", "event", "inflation", "missions4"])}
+    <div class="results-grid">
+      <div class="panel chart"><h3>라운드별 미션 성공 수</h3>${missionsChart()}</div>
+      <div class="panel chart"><h3>물건 값 변화</h3>${pricesChart()}</div>
+    </div></div>`;
+}
+function renderGuide() {
+  let flow = "", t = 0, last = 0;
+  STAGES.forEach(st => {
+    if (st.s !== last) { flow += `<tr class="sess"><td colspan="3">${st.s}차시 (40분) · ${st.s === 1 ? "물물교환에서 조개 돈으로" : "가격은 어떻게 정해질까"}</td></tr>`; t = 0; last = st.s; }
+    const what = st.rules ? st.rules[0] : st.qs ? st.qs[0] : st.say ? st.say[st.say.length - 1].replace(/<[^>]+>/g, "") : "";
+    flow += `<tr><td class="t">${t}–${t + st.min}분</td><td class="s">${st.title}</td><td>${what}</td></tr>`; t += st.min;
+  });
+  $("#view-guide").innerHTML = `<div class="guide">
+    <div class="guide-hero">
+      <div><span class="eyebrow">놀이 중심 경제금융교육 · 2차시 체험형 경제 놀이</span>
+        <h1>조개섬 시장</h1>
+        <p class="lead">물건 하나만 가진 여섯 마을이 살아남으려고 서로 바꾸고, 조개를 돈으로 쓰고, 값이 오르내리는 것을 몸으로 겪는 교실 시장 놀이예요. 화면의 그래프는 모두 그날 우리 반이 만든 기록으로 그려져요.</p></div>
+      <div class="facts">
+        <div class="fact"><small>대상</small><b>초등 3~6학년</b></div>
+        <div class="fact"><small>시간</small><b>2차시 · 80분</b></div>
+        <div class="fact"><small>인원</small><b>20~30명 · 6모둠</b></div>
+        <div class="fact"><small>준비</small><b>카드 인쇄 + 바둑알</b></div>
+      </div>
+    </div>
+
+    <section><h2>이 놀이로 배우는 것</h2>
+      <div class="goals">
+        <div class="goal"><span class="tag">1차시</span><b>돈은 왜 생겼을까</b><span>물물교환의 불편함(욕구의 엇갈림)을 겪고, 화폐의 세 가지 기능을 말할 수 있다.</span></div>
+        <div class="goal"><span class="tag">2차시 전반</span><b>값은 누가 정할까</b><span>물건이 귀해지거나 찾는 사람이 늘면 값이 오르는 까닭을 우리 반 기록으로 설명할 수 있다.</span></div>
+        <div class="goal"><span class="tag">2차시 후반</span><b>돈이 많으면 부자일까</b><span>돈의 양만 늘면 물건 값이 오른다는 것(인플레이션)을 경험으로 이해한다.</span></div>
+      </div></section>
+
+    <section class="two">
+      <div style="display:grid;gap:12px"><h2>숨은 설계: 아무도 서로를 원하지 않는 섬</h2>
+        <p>마을마다 원하는 물건은 '다음 두 마을'의 것뿐이에요. 물고기 마을은 과일·나무를, 과일 마을은 나무·소금을 원하는 식으로 욕구가 한 방향으로만 돌아요. 그래서 1라운드에서는 서로 원하는 두 마을이 한 쌍도 없어요.</p>
+        <p>아이들은 \"필요 없는 물건이라도 일단 받아 두면 다른 데서 바꿀 수 있겠다\"는 생각에 스스로 다가가게 돼요. 이게 바로 돈이 생겨난 원리라서, 조개 돈은 선생님이 알려 주는 규칙이 아니라 아이들이 기다리던 해결책으로 등장해요.</p>
+        <p>정리 시간에 '섬의 비밀 보기'로 이 구조를 공개하면 아이들이 1라운드가 왜 그렇게 힘들었는지 바로 이해해요.</p></div>
+      <div class="panel cycle-wrap">${cycleSVG()}<div class="legend"><span><i></i>가장 원해요(2장)</span><span><i class="dash"></i>조금 원해요(1장)</span></div></div>
+    </section>
+
+    <section><h2>수업 흐름</h2><div class="panel tbl-wrap"><table class="flow"><thead><tr><th>시간</th><th>단계</th><th>핵심 활동·발문</th></tr></thead><tbody>${flow}</tbody></table></div></section>
+
+    <section class="two">
+      <div style="display:grid;gap:12px"><h2>준비물</h2><ul class="plain">
+        <li><b>물건 카드</b> 마을별 16장 (인쇄 자료 6쪽, 라운드마다 12장씩 채워 주고 남는 것은 사건용)</li>
+        <li><b>미션 카드</b> 마을별 A·B 2장씩 총 24장 (2쪽)</li>
+        <li><b>조개 돈</b> 마을당 최대 90개. 인쇄도 되지만 바둑알·클립·단추를 쓰면 훨씬 빨라요</li>
+        <li><b>가격표·역할 카드</b> 1쪽, <b>경제 일기</b> 학생 수만큼</li>
+        <li>프로젝터와 이 화면 (타이머·기록·그래프)</li></ul></div>
+      <div style="display:grid;gap:12px"><h2>운영 팁</h2><ul class="plain">
+        <li>미션 확인은 이장만 촌장님께 와요. 줄이 길어지면 학생 '부촌장'을 한 명 두세요.</li>
+        <li>기록 도우미 학생이 노트북에서 +1을 누르게 하면 선생님은 교실을 돌아볼 수 있어요.</li>
+        <li>타이머가 끝나면 소리가 나요(처음 '시작'을 누른 뒤부터). \"조개섬에 밤이 왔어요\"를 멈춤 신호로 약속해 두세요.</li>
+        <li>'교사 메모'는 학생에게 보여 주기 전에 꺼 두세요. 사건 직접 고르기와 예상 변화가 들어 있어요.</li>
+        <li>기록은 이 브라우저에만 저장돼요. 1차시와 2차시를 같은 컴퓨터로 진행하세요.</li></ul></div>
+    </section>
+
+    <section class="two">
+      <div style="display:grid;gap:12px"><h2>평가</h2><ul class="plain">
+        <li><b>관찰</b> 규칙을 지키며 거래하는가 / 모둠 역할을 해내는가 / 가격을 상황에 맞게 바꾸는가</li>
+        <li><b>발표</b> 물물교환이 어려웠던 까닭, 값이 변한 까닭을 자기 경험으로 말하는가</li>
+        <li><b>경제 일기</b> 화폐의 기능, 가격 변화, 인플레이션 중 하나 이상을 자기 말로 쓰는가</li></ul></div>
+      <div style="display:grid;gap:12px"><h2>학년에 맞게 바꾸기</h2><ul class="plain">
+        <li><b>3~4학년</b> 1차시 중심으로 운영하고, 2차시는 3라운드(사건)까지만 해도 충분해요.</li>
+        <li><b>5~6학년</b> 4라운드 뒤 \"섬 대장은 조개를 어떻게 관리해야 할까?\" 토의로 중앙은행 역할까지 넓혀 보세요.</li>
+        <li><b>에듀테크</b> 모둠 태블릿으로 가격 기록 사진을 찍어 패들렛에 올리면 모둠별 가격 일지가 돼요.</li></ul></div>
+    </section>
+
+    <section><h2>교육과정 연계</h2>
+      <p>초등 사회과 경제 영역(희소성과 선택, 생산·소비·교환, 시장과 가격)과 연결돼요. 학년과 교과서에 맞는 성취기준 코드를 지도안에 적어 넣어 주세요. 창의적 체험활동의 금융·경제교육 시간으로도 운영할 수 있어요.</p></section>
+  </div>`;
+}
+
+/* ---------------- 인쇄 자료 ---------------- */
+const PRINT_SETS = [
+  ["goods", "물건 카드 · 6쪽"], ["missions", "미션 카드 · 2쪽"], ["coins", "조개 돈 · 2쪽"],
+  ["misc", "가격표·역할 · 1쪽"], ["diary", "경제 일기 · 1쪽"],
+];
+function sheet(title, sub, body) {
+  return `<div class="sheet"><div class="sh"><b>${title}</b><span>${sub}</span></div>${body}</div>`;
+}
+function sheetsHTML(set) {
+  if (set === "goods") return GOODS.map((g, i) => sheet(`물건 카드 · ${g.town}`, "16장 · 점선을 따라 잘라요",
+    `<div class="grid-cards">${Array.from({ length: 16 }, () => `<div class="gcard" style="--k:${pColor(i)}"><div class="fr"><span class="tn">${g.town}</span>${icon(g.id)}<span class="nm">${g.name}</span></div></div>`).join("")}</div>`)).join("");
+  if (set === "missions") {
+    const cards = GOODS.flatMap((g, i) => [0, 1, 0, 1].map(v => {
+      const [t, need] = MISSIONS[i][v], w = wants(i);
+      return `<div class="mcard" style="--k:${pColor(i)}"><div class="fr">
+        <div class="mtop"><span class="chip">${g.town}</span><span>생존 미션 ${v ? "B" : "A"}</span></div>
+        <h4>${t}</h4>
+        <div class="need">${w.map((j, k) => `<div><span style="color:${pColor(j)}">${icon(GOODS[j].id)}</span>${GOODS[j].name} × ${need[k]}<em>${GOODS[j].town}</em></div>`).join("")}</div>
+        <div class="ok"><span>모두 모으면 촌장님께!</span><i></i></div></div></div>`;
+    }));
+    return [0, 1].map(p => sheet("생존 미션 카드", `${p + 1}/2 · 마을마다 A·B 2장씩`, `<div class="grid-missions">${cards.slice(p * 12, p * 12 + 12).join("")}</div>`)).join("");
+  }
+  if (set === "coins") return [1, 5].map(v => sheet(`조개 돈 · ${v}조개`, "35개 · 바둑알이나 클립으로 대신해도 좋아요",
+    `<div class="grid-coins">${Array.from({ length: 35 }, () => `<div class="coin ${v === 5 ? "five" : ""}"><div class="c">${icon("shell")}<b>${v}조개</b></div></div>`).join("")}</div>`)).join("");
+  if (set === "misc") return sheet("가격표 · 역할 카드", "가격표는 마을 책상 앞에 세워 두어요",
+    `<div class="sheet-misc"><div class="tags">${GOODS.map((g, i) => `<div class="ptag" style="--k:${pColor(i)}"><div class="fr">${icon(g.id)}<h4>${g.town} 가게</h4>
+      <div class="eq">${g.name} 1개 = <u></u> 조개</div><div class="rounds"><span>2라운드 ____</span><span>3라운드 ____</span><span>4라운드 ____</span></div></div></div>`).join("")}</div>
+     <div class="roles">${ROLES.map(r => `<div class="role"><div class="fr"><h4>${r[0]}</h4><p>${r[1]}</p><small>${r[2]}</small></div></div>`).join("")}</div></div>`);
+  if (set === "diary") return sheet("조개섬 경제 일기", "2차시 끝에 써요",
+    `<div class="ws"><h3>조개섬 경제 일기</h3>
+      <div class="name"><span>( )학년 ( )반 ( )번</span><span>이름 <u></u></span><span>우리 마을 <u></u></span></div>
+      <div class="q"><b>1. 물물교환을 할 때 가장 힘들었던 점은 무엇인가요?</b><div class="lines"></div></div>
+      <div class="q"><b>2. 조개 돈이 생기고 무엇이 달라졌나요?</b><div class="lines"></div></div>
+      <div class="q"><b>3. 사건이 일어난 뒤 값이 변한 물건과 그 까닭을 써 보세요.</b><div class="lines"></div></div>
+      <div class="q"><b>4. 우리 마을 물건 값의 변화를 꺾은선그래프로 그려 보세요.</b><div class="graph"><span style="left:12%">2라운드</span><span style="left:45%">3라운드</span><span style="left:78%">4라운드</span></div></div>
+      <div class="q" style="margin-top:4mm"><b>5. 조개가 많아졌는데 왜 물건 값이 올랐을까요?</b><div class="lines"></div></div>
+      <div class="q"><b>6. 오늘의 경제 한 줄</b><div class="lines" style="height:8mm"></div></div>
+      <table><tr><td>규칙을 지키며 공정하게 거래했어요.</td><td>☆☆☆</td></tr><tr><td>모둠 친구들과 역할을 나누어 협력했어요.</td><td>☆☆☆</td></tr><tr><td>물건 값이 변하는 까닭을 설명할 수 있어요.</td><td>☆☆☆</td></tr></table></div>`);
+  return "";
+}
+function renderPrint() {
+  const set = state.printSet;
+  $("#view-print").innerHTML = `
+    <div class="print-controls">
+      <div class="seg" role="group" aria-label="인쇄할 자료">${PRINT_SETS.map(([k, l]) => `<button data-ps="${k}" aria-pressed="${k === set}">${l}</button>`).join("")}</div>
+      ${inFrame ? "" : `<button class="btn primary" id="btn-print">이 자료 인쇄하기</button>`}
+    </div>
+    <p class="print-note">${inFrame
+      ? "이 화면에서는 인쇄 창을 열 수 없어요. 저장소의 <b>index.html</b> 파일을 내려받아 크롬이나 엣지로 연 뒤, 이 탭에서 '이 자료 인쇄하기'를 누르면 A4로 인쇄돼요. 인쇄 설정에서 여백 없음, 배경 그래픽 켜기를 선택하세요."
+      : "A4 세로로 인쇄돼요. 인쇄 설정에서 여백은 '없음', '배경 그래픽'은 켜 주세요. 물건 카드는 두꺼운 종이에 뽑으면 여러 해 쓸 수 있어요."}</p>
+    <div class="sheets-scroll"><div class="sheets">${sheetsHTML(set)}</div></div>`;
+}
+
+/* ---------------- 화면 전환 ---------------- */
+function brand() { $("#brand").innerHTML = `${icon("shell")}<span>조개섬 시장</span>`; }
+function showView(v) {
+  state.view = v; save();
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.view === v));
+  ["play", "board", "chart", "guide", "print"].forEach(k => { $("#view-" + k).hidden = k !== v; });
+  if (v === "play") { renderRail(); renderStage(); }
+  if (v === "board") renderBoard();
+  if (v === "chart") renderChart();
+  if (v === "guide") renderGuide();
+  if (v === "print") renderPrint();
+  $("#banner").hidden = !state.example;
+}
+function goStage(i) {
+  if (i < 0 || i >= STAGES.length) return;
+  state.stage = i; save(); renderRail(); renderStage();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function refreshLiveCharts() {
+  // 진행 화면에서 숫자를 바꾸면 같은 화면의 그래프·인사이트도 바로 다시 그린다
+  if (state.view !== "play") return;
+  const st = STAGES[state.stage];
+  if (st.extra.some(x => ["chartMissions", "chartPrices", "inflation"].includes(x))) renderStageKeepTimer();
+}
+function renderStageKeepTimer() {
+  const saved = { ...timer }; renderStage();
+  Object.assign(timer, saved); if (saved.running) { timer.running = false; startTimer(); } paintTimer();
+}
+
+/* ---------------- 이벤트 ---------------- */
+function bind() {
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.classList.contains("tab")) return showView(b.dataset.view);
+    if (b.dataset.go != null) return goStage(+b.dataset.go);
+    if (b.dataset.step) return goStage(state.stage + +b.dataset.step);
+    if (b.dataset.t === "toggle") return timer.running ? stopTimer() : (timer.done ? (setTimer(STAGES[state.stage].min), startTimer()) : startTimer());
+    if (b.dataset.t === "plus") { timer.remain += 60; timer.total = Math.max(timer.total, timer.remain); timer.done = false; return paintTimer(); }
+    if (b.dataset.t === "reset") return setTimer(STAGES[state.stage].min);
+    if (b.dataset.m) {
+      const [rk, i, d] = b.dataset.m.split(","); const arr = state.missions[rk];
+      arr[+i] = Math.max(0, arr[+i] + +d); markReal(); save();
+      $(`#cnt-${rk}-${i}`).textContent = arr[+i]; $(`#tot-${rk}`).textContent = sum(arr);
+      return;
+    }
+    if (b.dataset.p) {
+      const [rk, i, d] = b.dataset.p.split(","); const cur = state.prices[rk][+i];
+      state.prices[rk][+i] = Math.max(0, Math.min(999, (cur ?? (state.prices.r2[+i] ?? 3)) + (cur == null ? 0 : +d)));
+      markReal(); save(); $(`#price-${rk}-${i}`).value = state.prices[rk][+i]; return;
+    }
+    if (b.dataset.evPick != null) {
+      const pool = EVENTS.map(x => x.id);
+      const id = pool[Math.floor(Math.random() * pool.length)], ev = EVENTS.find(x => x.id === id);
+      const front = b.querySelector(".front");
+      front.innerHTML = `<span><span style="color:${gColor(ev.good)};display:block;width:50%;margin:0 auto">${icon(ev.icon)}</span><b style="font-family:var(--f-display);font-weight:400;font-size:1.3rem">${ev.title}</b></span>`;
+      b.classList.add("flipped");
+      document.querySelectorAll(".ecard").forEach(c => { c.disabled = true; if (c !== b) c.classList.add("dim"); });
+      state.event = id; markReal(); save();
+      setTimeout(() => renderStageKeepTimer(), 1500);
+      return;
+    }
+    if (b.dataset.ev != null) { state.event = b.dataset.ev || null; markReal(); save(); return renderStageKeepTimer(); }
+    if (b.id === "btn-cycle") { $("#cycle-slot").innerHTML = `<div class="cycle-wrap">${cycleSVG()}<div class="legend"><span><i></i>가장 원해요</span><span><i class="dash"></i>조금 원해요</span></div></div>`; return; }
+    if (b.id === "btn-gift") return giftAnim(b);
+    if (b.dataset.ps) { state.printSet = b.dataset.ps; save(); return renderPrint(); }
+    if (b.id === "btn-print") { try { window.print(); } catch (err) {} return; }
+    if (b.id === "btn-notes") { state.notes = !state.notes; save(); b.setAttribute("aria-pressed", state.notes); const n = $("#note"); if (n) n.hidden = !state.notes; return; }
+    if (b.id === "btn-full") {
+      try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (err) {}
+      return;
+    }
+    if (b.id === "btn-start-class") { const keep = { stage: 0, notes: state.notes, printSet: state.printSet }; state = Object.assign(blank(), keep); save(); return showView("play"); }
+    if (b.id === "btn-reset") {
+      if (b.dataset.armed) { const keep = { stage: state.stage, notes: state.notes, printSet: state.printSet, view: "board" }; state = Object.assign(blank(), keep); save(); return showView("board"); }
+      b.dataset.armed = "1"; b.textContent = "한 번 더 누르면 모두 지워져요"; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = "기록 모두 지우기"; } }, 4000); return;
+    }
+    if (b.id === "btn-example") { const keep = { stage: state.stage, notes: state.notes, printSet: state.printSet, view: "board" }; state = Object.assign(withExample(), keep); save(); return showView("board"); }
+  });
+  document.addEventListener("change", e => {
+    const t = e.target;
+    if (t.dataset.pi) {
+      const [rk, i] = t.dataset.pi.split(","); const v = parseInt(t.value, 10);
+      state.prices[rk][+i] = Number.isFinite(v) && v >= 0 ? Math.min(999, v) : null; t.value = state.prices[rk][+i] ?? "";
+      markReal(); save(); if (state.view === "board") renderBoardKeepFocus(); else refreshLiveCharts();
+    }
+    if (t.dataset.bm) {
+      const [rk, i] = t.dataset.bm.split(","); const v = parseInt(t.value, 10);
+      state.missions[rk][+i] = Number.isFinite(v) && v >= 0 ? Math.min(99, v) : 0;
+      markReal(); save(); renderBoardKeepFocus();
+    }
+  });
+  document.addEventListener("keydown", e => {
+    if (state.view !== "play" || e.target.closest("input")) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); goStage(state.stage + 1); }
+    if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goStage(state.stage - 1); }
+  });
+}
+function renderBoardKeepFocus() {
+  const id = document.activeElement && document.activeElement.id;
+  renderBoard();
+  const el = id && document.getElementById(id); if (el) el.focus();
+}
+function markReal() { if (state.example) { state.example = false; $("#banner").hidden = true; } }
+function giftAnim(btn) {
+  btn.disabled = true;
+  const num = $("#gift-num"), pile = $("#gift-pile"); let n = 30;
+  const step = () => {
+    n += 2; num.textContent = n;
+    pile.insertAdjacentHTML("beforeend", icon("shell") + icon("shell"));
+    if (n < 90) setTimeout(step, 45); else btn.textContent = "마을마다 조개 90개!";
+  };
+  step();
+}
+
+/* ---------------- 시작 ---------------- */
+function boot(data) {
+  state = (data && data.state) || load();
+  if (state.example && state.missions.r1.every(v => v === 0) && state.prices.r2.every(v => v == null)) Object.assign(state, withExample());
+  brand(); bind();
+  $("#btn-notes").setAttribute("aria-pressed", state.notes);
+  showView(state.view || "play");
+}
+try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ state })); } catch (e) {}
+const hot = window.claude && window.claude.hot;
+if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
+})();
+</script>
+</body>
+</html>
