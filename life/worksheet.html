@@ -71,6 +71,9 @@ th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
 .jar b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 12pt; color: var(--k); }
 .jar span { display: block; font-size: 8.5pt; color: var(--p-muted); }
 .jar .blank { margin-top: 2mm; font-family: var(--f-num); font-size: 10pt; }
+.strip10 { display: grid; grid-template-columns: repeat(10, 1fr); border: .4mm solid var(--p-ink); height: 12mm; }
+.strip10 i { border-right: .3mm solid var(--p-line); }
+.strip10 i:last-child { border-right: 0; }
 .pie { width: 38mm; height: 38mm; border-radius: 50%; border: .4mm solid var(--p-ink); margin: 0 auto; position: relative; }
 .pie::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1.2mm; height: 1.2mm; border-radius: 50%; background: var(--p-ink); transform: translate(-50%, -50%); }
 .graph { position: relative; height: 62mm; border-left: .4mm solid var(--p-ink); border-bottom: .4mm solid var(--p-ink); margin: 2mm 0 7mm 10mm;
@@ -144,7 +147,7 @@ th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
       <div><b>③ 확인 문제와 금 도장</b>개념을 처음 만나면 3지선다 확인 문제가 나와요. 맞히면 금 도장과 함께 '배움 +2'를 받아 더 좋은 직업을 고를 수 있어요.</div>
       <div><b>④ 엔딩을 비교하며 되돌아본다</b>엔딩 화면이 받은 이자·낸 이자·세금·라면값을 실제 숫자로 정리해 줘요. 모둠 친구와 비교하며 결과를 가른 선택을 찾아요.</div>
     </div>
-    <p class="mini" style="margin-top:2mm">어려운 낱말(이자, 할부, 리볼빙, 연말정산 등)은 밑줄이 그어져 있고, 바로 아래 '낱말 풀이'에 뜻이 나와요.</p></div>
+    <p class="mini" style="margin-top:2mm">어려운 낱말(이자, 할부, 리볼빙, 연말정산 등)은 밑줄이 그어져 있고, 바로 아래 '낱말 풀이'에 뜻이 나와요. 백분율(%)은 6학년 '비와 비율'에서 배우므로, 게임과 활동지에서는 %를 쓰지 않고 '10칸으로 나누기', '1만원마다 1년에 250원'처럼 나타냈어요.</p></div>
   <div class="box"><h3>수업 흐름</h3>
     <table class="flow">
       <tr><th>시간</th><th>단계</th><th>활동과 발문</th></tr>
@@ -160,7 +163,7 @@ th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
       <tr><td>35–40분</td><td>생활 잇기</td><td>활동지 5를 가정 과제로 안내해요. 진짜 내 용돈으로 한 달 계획 세우기.</td></tr>
     </table></div>
   <div class="box soft"><h3>운영 팁</h3>
-    <p class="mini" style="color:var(--p-ink)">한 판은 20분쯤 걸려요. 빨리 끝난 학생은 '다시 태어나기'로 다른 선택을 해 보고 엔딩 도감을 채우게 해요. 기록은 각 기기의 브라우저에 저장되니 1·2차시는 같은 기기를 쓰세요. 금액과 확률은 개념을 이해하도록 단순화한 값이고, 실제 금융 상품 안내가 아니라는 점을 알려 주세요.</p></div>
+    <p class="mini" style="color:var(--p-ink)">한 판은 20분쯤 걸려요. 빨리 끝난 학생은 '다시 태어나기'로 엔딩 도감을 채워요. 기록은 기기마다 저장되니 1·2차시는 같은 기기를 쓰세요. 금액과 확률은 단순화한 값이에요.</p></div>
 </section>
 
 <!-- 교사용 2 -->
@@ -171,17 +174,17 @@ th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
     <tr><td>용돈 관리(예산)</td><td>첫 용돈(8), 물가가 올랐어요(무작위)</td><td>●</td><td>8,000원</td></tr>
     <tr><td>기회비용</td><td>뽑기·떡볶이(9), 생일 선물(10), 스마트폰(13), 자동차(28), 집(30) — 모든 결과의 '포기한 것'</td><td>●</td><td>만화책을 읽는 즐거움</td></tr>
     <tr><td>시장과 가격</td><td>학교 알뜰장터(12)</td><td>●</td><td>가격을 조금 내린다</td></tr>
-    <tr><td>저축과 이자</td><td>통장 만들기(11), 세뱃돈(14), 가계부 '예금 이자' 줄</td><td>●</td><td>2,500원</td></tr>
+    <tr><td>저축과 이자</td><td>통장 만들기(11), 세뱃돈(14), 가계부 '예금 이자' 줄</td><td>●</td><td>1,000원</td></tr>
     <tr><td>일과 소득</td><td>첫 아르바이트(17), 직업 고르기(23), 주말 부업</td><td>●</td><td>12만원</td></tr>
     <tr><td>세금</td><td>직업 고르기(23), 가계부 '세금 뗀 돈', 세금 돌려받기</td><td>●</td><td>학교·도로·소방서처럼 모두가 쓰는 곳</td></tr>
     <tr><td>신용</td><td>첫 신용카드(24), 창업 대출 조건(36)</td><td>●</td><td>빌린 돈을 약속한 날에 잘 갚는 사람</td></tr>
-    <tr><td>빚과 이자</td><td>할부폰(13), 학자금(19), 리볼빙(24), 집 대출(30), 가계부 '빚 이자' 줄</td><td>●</td><td>110만원</td></tr>
-    <tr><td>물가 상승</td><td>오른쪽 라면값(항상), 장바구니 물가(무작위), 엔딩 그래프의 두 선</td><td>●</td><td>10개에서 8개로 줄었다</td></tr>
+    <tr><td>빚과 이자</td><td>할부폰(13), 학자금(19), 리볼빙(24), 집 대출(30), 가계부 '빚 이자' 줄</td><td>●</td><td>12만원</td></tr>
+    <tr><td>물가 상승</td><td>오른쪽 라면값(항상), 장바구니 물가(무작위), 엔딩 그래프의 두 선</td><td>●</td><td>10개에서 5개로 줄었다</td></tr>
     <tr><td>금융 사기</td><td>돈 복사 광고(15), 대박 투자 제안(무작위), 보이스피싱(70)</td><td>●</td><td>전화를 끊고 가족·은행에 확인</td></tr>
     <tr><td>나눔</td><td>이웃 돕기, 공부방 봉사(62), 장학금(75), '나누기' 봉투</td><td>●</td><td>돈이 필요한 곳으로 흘러가 모두를 도움</td></tr>
     <tr><td>비상금</td><td>부모님 병원비(50), 일자리를 잃었어요(무작위)</td><td>●</td><td>생활비 3~6개월치</td></tr>
     <tr><td>확률 · 충동구매</td><td>뽑기 기계(9)</td><td></td><td>보장은 없다 · 하루 기다려 보기</td></tr>
-    <tr><td>복리</td><td>할머니의 눈덩이 이야기(14)</td><td></td><td>121만원</td></tr>
+    <tr><td>복리</td><td>할머니의 눈덩이 이야기(14)</td><td></td><td>1,000원보다 많다 (1,100원)</td></tr>
     <tr><td>위험과 수익 · 분산 투자</td><td>세뱃돈 투자(14), 주식 폭락(무작위), 창업(36)</td><td></td><td>의심해야 한다 · 여러 곳에 나누어</td></tr>
     <tr><td>배움에 투자하기</td><td>알바·공부(17), 진로(19), 새로운 기술(42)</td><td></td><td>나중에 할 수 있는 일을 넓히는 것</td></tr>
     <tr><td>보험</td><td>보험 상담(26), 갑자기 아팠어요(무작위)</td><td></td><td>드물지만 큰돈이 드는 일에 대비</td></tr>
@@ -213,21 +216,21 @@ th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
       <tr><td>친구나 가족에게 선물하려고 돈을 남겨 둔다.</td><td>○</td><td>○</td><td>○</td></tr>
     </table></div>
   <div><h3><span class="n">2</span>내 용돈을 네 봉투에 나눈다면?</h3>
-    <p class="mini">게임에서는 해마다 들어온 돈이 이 비율대로 나뉘어요. 네 칸을 더하면 100%가 되게 적어 보세요.</p>
+    <p class="mini">용돈을 10칸으로 똑같이 나눈다면 봉투마다 몇 칸을 넣을까요? 네 봉투를 더하면 10칸이 되어야 해요. 게임에서도 이렇게 나눠요.</p>
     <div class="grid2" style="align-items:center">
       <div class="grid4">
-        <div class="jar" style="--k:#E07F12"><b>쓰기</b><span>지금 누리는 기쁨</span><div class="blank">____ %</div></div>
-        <div class="jar" style="--k:#1D5CAB"><b>모으기</b><span>통장에 저축</span><div class="blank">____ %</div></div>
-        <div class="jar" style="--k:#23875A"><b>불리기</b><span>투자로 키우기</span><div class="blank">____ %</div></div>
-        <div class="jar" style="--k:#C94F86"><b>나누기</b><span>기부·선물</span><div class="blank">____ %</div></div>
+        <div class="jar" style="--k:#E07F12"><b>쓰기</b><span>지금 누리는 기쁨</span><div class="blank">____ 칸</div></div>
+        <div class="jar" style="--k:#1D5CAB"><b>모으기</b><span>통장에 저축</span><div class="blank">____ 칸</div></div>
+        <div class="jar" style="--k:#23875A"><b>불리기</b><span>투자로 키우기</span><div class="blank">____ 칸</div></div>
+        <div class="jar" style="--k:#C94F86"><b>나누기</b><span>기부·선물</span><div class="blank">____ 칸</div></div>
       </div>
-      <div><div class="pie"></div><p class="mini" style="text-align:center;margin-top:2mm">원그래프로 나타내 보세요</p></div>
+      <div><div class="strip10"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="mini" style="text-align:center;margin-top:2mm">10칸 띠에 봉투 색으로 색칠해 보세요</p></div>
     </div></div>
   <div><h3><span class="n">3</span>이렇게 나눈 까닭은 무엇인가요?</h3><div class="lines l2"></div></div>
   <div><h3><span class="n">4</span>예측해 보아요</h3>
     <div class="grid2">
       <div class="box">지금 라면 한 봉지가 1,000원이라면,<br><b>70년 뒤</b>에는 얼마쯤 할까요?<div class="lines l1" style="margin-top:2mm"></div><p class="mini">그렇게 생각한 까닭:</p><div class="lines l1"></div></div>
-      <div class="box">통장에 10만원을 넣어 두면 1년 뒤 얼마가 될까요? (이자 1년에 2.5%)<div class="lines l1" style="margin-top:2mm"></div><p class="mini">게임을 하고 나서 맞는지 확인해 보세요.</p></div>
+      <div class="box">통장에 10만원을 넣어 두면 1년 뒤 얼마가 될까요? (1만원마다 1년에 이자 250원)<div class="lines l1" style="margin-top:2mm"></div><p class="mini">게임을 하고 나서 맞는지 확인해 보세요.</p></div>
     </div></div>
   <div><h3><span class="n">5</span>나는 어떤 엔딩을 만나게 될까요?</h3><div class="lines l1"></div></div>
 </section>
@@ -317,13 +320,13 @@ th { background: var(--p-soft); font-size: 9pt; font-weight: 700; }
   <div><h3><span class="n">2</span>한 달 용돈 계획표</h3>
     <table><tr><th style="width:40mm">한 달 용돈</th><td colspan="4">원</td></tr>
       <tr><th>봉투</th><th>쓰기</th><th>모으기</th><th>불리기 · 또는 모으기</th><th>나누기</th></tr>
-      <tr><th>비율</th><td>%</td><td>%</td><td>%</td><td>%</td></tr>
+      <tr><th>칸 (10칸 중)</th><td>칸</td><td>칸</td><td>칸</td><td>칸</td></tr>
       <tr><th>금액</th><td>원</td><td>원</td><td>원</td><td>원</td></tr></table></div>
   <div><h3><span class="n">3</span>사고 싶은 것과 기회비용</h3>
     <div class="grid2"><div class="box">이번 달에 사고 싶은 것<div class="lines l1"></div>가격: ( )원</div><div class="box">그것을 사면 포기하게 되는 것<div class="lines l2"></div></div></div></div>
   <div><h3><span class="n">4</span>한 달 뒤 돌아보기</h3>
     <table class="check"><tr><th>스스로 점검해요</th><th colspan="3">별점</th></tr>
-      <tr><td>계획한 비율대로 봉투를 나누었다.</td><td colspan="3" class="stars">☆☆☆</td></tr>
+      <tr><td>계획한 칸 수대로 봉투를 나누었다.</td><td colspan="3" class="stars">☆☆☆</td></tr>
       <tr><td>사기 전에 포기할 것을 먼저 생각했다.</td><td colspan="3" class="stars">☆☆☆</td></tr>
       <tr><td>모으기 봉투의 돈을 끝까지 지켰다.</td><td colspan="3" class="stars">☆☆☆</td></tr></table>
     <p class="mini" style="margin-top:2mm">가장 잘한 점과 다음 달에 바꿀 점</p><div class="lines l2"></div></div>
