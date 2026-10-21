@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>한평생 가계부</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="여덟 살 첫 용돈부터 마지막 장부까지, 돈과 선택으로 한평생을 살아 보는 경제 인생 시뮬레이션.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: 가계부 공책 — 왼쪽은 올해의 장(사건·선택·가계부 줄), 오른쪽은 통장과 돈 나누기 */
+:root {
+  --desk: #E4E9E1;
+  --paper: #FBFCF7;
+  --rule: #D3DDD0;
+  --margin: #E8A69C;
+  --ink: #1C2A31;
+  --muted: #5B6B6D;
+  --plus: #1D5CAB;
+  --minus: #C4372A;
+  --hl: #FFE45A;
+  --hl-ink: #3A3000;
+  --stamp: #C4372A;
+  --s-happy: #E07F12;
+  --s-hp: #23875A;
+  --s-learn: #1D5CAB;
+  --s-credit: #7A4CB3;
+  --j-spend: #E07F12;
+  --j-save: #1D5CAB;
+  --j-grow: #23875A;
+  --j-give: #C94F86;
+  --f-display: "Black Han Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-body: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #0F1518; --paper: #172126; --rule: #26353B; --margin: #6E3A34; --ink: #E4ECE9; --muted: #93A4A5;
+    --plus: #73A9F2; --minus: #F08372; --hl: #E3C537; --hl-ink: #241E00; --stamp: #F08372;
+    --s-happy: #F2A34A; --s-hp: #4FBF86; --s-learn: #73A9F2; --s-credit: #B38BEA;
+    --j-spend: #F2A34A; --j-save: #73A9F2; --j-grow: #4FBF86; --j-give: #EE86B3;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #0F1518; --paper: #172126; --rule: #26353B; --margin: #6E3A34; --ink: #E4ECE9; --muted: #93A4A5;
+  --plus: #73A9F2; --minus: #F08372; --hl: #E3C537; --hl-ink: #241E00; --stamp: #F08372;
+  --s-happy: #F2A34A; --s-hp: #4FBF86; --s-learn: #73A9F2; --s-credit: #B38BEA;
+  --j-spend: #F2A34A; --j-save: #73A9F2; --j-grow: #4FBF86; --j-give: #EE86B3;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--desk); color: var(--ink);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  padding-block: 14px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--plus); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; line-height: 1.2; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+p { margin: 0; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.plus { color: var(--plus); } .minus { color: var(--minus); }
+.wrap { max-width: 1160px; margin: 0 auto; display: grid; gap: 14px; }
+
+/* 상단 */
+.top { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
+.logo { display: flex; align-items: center; gap: 12px; }
+.seal { width: 48px; height: 48px; border-radius: 50%; border: 3px solid var(--stamp); color: var(--stamp); display: grid; place-items: center; font-family: var(--f-display); font-size: 22px; transform: rotate(-10deg); }
+.logo h1 { font-size: 30px; }
+.logo small { display: block; color: var(--muted); font-size: 13px; }
+.tools { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.btn {
+  border: 2px solid var(--ink); background: var(--paper); border-radius: 10px; padding: 8px 14px;
+  font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: transform .05s;
+}
+.btn:active { transform: translateY(1px); }
+.btn.sm { padding: 5px 11px; font-size: 14px; border-width: 1.5px; }
+.btn.pri { background: var(--ink); color: var(--paper); }
+.btn.ghost { border-color: var(--rule); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 공책 종이 */
+.sheet {
+  position: relative; background: var(--paper); border-radius: 6px; border: 1px solid var(--rule);
+  box-shadow: 0 1px 0 var(--rule), 0 10px 26px -18px rgba(0,0,0,.45);
+  padding: 22px 22px 22px 52px;
+  background-image: linear-gradient(90deg, transparent 36px, var(--margin) 36px, var(--margin) 38px, transparent 38px),
+                    repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+  min-width: 0;
+}
+.sheet.plain { background-image: none; padding: 20px; }
+.eyebrow { font-weight: 700; font-size: 13px; letter-spacing: .08em; color: var(--muted); }
+
+/* 시작 화면 */
+.start { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.hero h2 { font-size: clamp(44px, 8vw, 92px); line-height: 1; margin: 6px 0 12px; }
+.hero h2 em { font-style: normal; color: var(--minus); }
+.hero .lead { font-size: 18px; max-width: 30em; color: var(--muted); }
+.how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+.how div { border: 1.5px dashed var(--rule); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--muted); background: var(--paper); }
+.how b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 18px; color: var(--ink); }
+.namerow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 6px 0 14px; }
+.namerow input { width: 200px; max-width: 100%; border: 2px solid var(--ink); border-radius: 10px; padding: 8px 12px; background: var(--paper); }
+.dist { display: grid; gap: 8px; margin-top: 10px; }
+.drow { display: grid; grid-template-columns: 74px minmax(0, 1fr) 46px; gap: 10px; align-items: center; font-size: 15px; }
+.dbar { height: 14px; border-radius: 3px; background: var(--rule); overflow: hidden; }
+.dbar i { display: block; height: 100%; background: var(--ink); }
+.small { font-size: 13px; color: var(--muted); }
+.lives { display: grid; gap: 4px; margin-top: 8px; font-size: 14px; }
+.lives div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--rule); padding: 3px 0; }
+
+/* 출생 기록 */
+.birth { display: grid; gap: 14px; }
+.birth .bname { font-size: clamp(40px, 7vw, 64px); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; }
+.facts small { display: block; color: var(--muted); font-size: 13px; }
+.facts b { font-size: 18px; }
+.tierchip { display: inline-block; padding: 1px 10px; border-radius: 999px; background: var(--hl); color: var(--hl-ink); font-weight: 700; }
+
+/* 게임 화면 */
+.game { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 14px; align-items: start; }
+.left { display: grid; gap: 14px; min-width: 0; }
+.strip { display: flex; gap: 3px; align-items: flex-end; overflow-x: auto; padding-bottom: 4px; }
+.strip i { flex: 1 0 12px; height: 12px; border-radius: 2px; background: var(--rule); position: relative; }
+.strip i.done { background: var(--ink); opacity: .55; }
+.strip i.ev { height: 18px; }
+.strip i.cur { background: var(--minus); opacity: 1; }
+.strip i.dec { background: var(--hl); }
+.stamp-date { display: inline-flex; gap: 8px; align-items: baseline; border: 2px solid var(--stamp); color: var(--stamp); border-radius: 6px; padding: 1px 10px; font-family: var(--f-num); font-size: 14px; font-weight: 600; transform: rotate(-2deg); }
+.event h2 { font-size: clamp(28px, 4vw, 40px); margin: 10px 0 8px; }
+.event .text { display: grid; gap: 4px; font-size: 18px; line-height: 32px; }
+.event .text .q { color: var(--plus); }
+.choices { display: grid; gap: 8px; margin-top: 16px; }
+.choice {
+  text-align: left; border: 2px solid var(--ink); background: var(--paper); border-radius: 10px; padding: 10px 14px;
+  display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 17px;
+}
+.choice .k { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-family: var(--f-num); font-size: 13px; }
+.choice:hover:not(:disabled) { background: var(--hl); color: var(--hl-ink); border-color: var(--hl-ink); }
+.choice:hover:not(:disabled) .k { border-color: var(--hl-ink); }
+.choice .tag { font-family: var(--f-num); font-size: 13px; white-space: nowrap; }
+.choice .need { grid-column: 2 / -1; font-size: 13px; color: var(--muted); margin-top: -4px; }
+.choice:disabled { opacity: .5; cursor: not-allowed; }
+.result { margin-top: 16px; display: grid; gap: 10px; }
+.result .r { font-size: 18px; line-height: 32px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-family: var(--f-num); font-size: 13px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1.5px solid currentColor; }
+.note { border: 2px solid var(--ink); border-radius: 10px; padding: 12px 14px; background: var(--paper); display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; }
+.note .ns { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--stamp); color: var(--stamp); display: grid; place-items: center; text-align: center; font-family: var(--f-display); font-size: 13px; line-height: 1.1; padding: 4px; transform: rotate(-8deg); }
+.note.new .ns { animation: thump .5s cubic-bezier(.3,1.6,.5,1); }
+.note b { font-family: var(--f-display); font-weight: 400; font-size: 19px; }
+.note p { font-size: 15px; line-height: 1.6; }
+.note .nw { display: inline-block; font-size: 12px; font-weight: 700; color: var(--paper); background: var(--stamp); border-radius: 4px; padding: 0 6px; margin-left: 6px; vertical-align: 2px; }
+@keyframes thump { from { transform: scale(2.2) rotate(-20deg); opacity: 0; } to { transform: rotate(-8deg); opacity: 1; } }
+.nextrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+
+/* 가계부 줄 */
+.ledger { padding: 14px 18px 14px 52px; }
+.ledger h3 { font-size: 18px; margin-bottom: 4px; }
+.lrows { display: grid; font-size: 14px; max-height: 330px; overflow-y: auto; }
+.lrow { display: grid; grid-template-columns: 92px minmax(0, 1fr) 118px; gap: 8px; align-items: baseline; line-height: 32px; min-height: 32px; }
+.lrow .y { font-family: var(--f-num); color: var(--muted); font-size: 13px; }
+.lrow .d { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lrow .m { font-family: var(--f-num); text-align: right; font-size: 13.5px; font-weight: 600; }
+.lrow.in { animation: write .3s ease-out; }
+.lrow.bad .d { color: var(--minus); }
+.lrow.good .d { color: var(--plus); }
+@keyframes write { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+
+/* 오른쪽 */
+.side { display: grid; gap: 14px; position: sticky; top: 12px; min-width: 0; }
+.side > * { min-width: 0; }
+.who { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.who h2 { font-size: 26px; }
+.who .age { font-family: var(--f-num); font-weight: 600; }
+.job { font-size: 14px; color: var(--muted); }
+.total { margin-top: 10px; }
+.total small { color: var(--muted); font-size: 13px; }
+.total .big { font-family: var(--f-num); font-weight: 600; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; }
+.total .real { font-size: 13px; color: var(--muted); }
+.parts { display: grid; gap: 2px; margin-top: 8px; font-size: 14px; }
+.parts div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed var(--rule); }
+.parts span:last-child { font-family: var(--f-num); font-size: 13px; }
+.flow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.flow div { border-radius: 8px; padding: 6px 8px; background: var(--desk); font-size: 12.5px; color: var(--muted); }
+.flow b { display: block; font-family: var(--f-num); font-size: 15px; }
+.stats { display: grid; gap: 7px; }
+.stat { display: grid; grid-template-columns: 38px minmax(0, 1fr) 30px; gap: 8px; align-items: center; font-size: 14px; }
+.stat .bar { height: 10px; border-radius: 5px; background: var(--rule); overflow: hidden; }
+.stat .bar i { display: block; height: 100%; transition: width .5s; }
+.stat b { font-family: var(--f-num); font-size: 13px; text-align: right; }
+.ramen { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: 14px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--rule); }
+.ramen b { font-family: var(--f-num); }
+.jars { display: grid; gap: 8px; }
+.jars h3 { font-size: 18px; }
+.jar { display: grid; grid-template-columns: 22px minmax(0, 1fr) 30px 46px 30px; gap: 6px; align-items: center; font-size: 15px; }
+.jar .dot { width: 18px; height: 22px; border-radius: 4px 4px 7px 7px; border: 2px solid var(--jc); position: relative; overflow: hidden; }
+.jar .dot i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--jc); }
+.jar small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
+.jar .pct { font-family: var(--f-num); font-weight: 600; text-align: center; }
+.pm { width: 30px; height: 28px; border-radius: 7px; border: 1.5px solid var(--ink); background: var(--paper); font-weight: 700; line-height: 1; }
+.pm:disabled { opacity: .35; cursor: not-allowed; }
+.mixbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; }
+.mixbar i { display: block; height: 100%; }
+.grow-to { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.grow-to select { border: 1.5px solid var(--ink); border-radius: 8px; padding: 3px 6px; background: var(--paper); width: 100%; min-width: 0; }
+.lockmsg { font-size: 13px; color: var(--muted); }
+
+/* 오버레이 */
+.ov { position: fixed; inset: 0; background: rgba(10, 16, 18, .55); z-index: 20; display: grid; place-items: center; padding: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.ovc { width: min(760px, 100%); max-height: 88vh; overflow: auto; }
+.ovh { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.grid-st { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.st { border: 2px dashed var(--rule); border-radius: 12px; padding: 10px; text-align: center; font-size: 13px; color: var(--muted); }
+.st .ns { width: 52px; height: 52px; margin: 0 auto 6px; border-radius: 50%; border: 2.5px solid var(--rule); display: grid; place-items: center; font-family: var(--f-display); font-size: 12px; line-height: 1.1; color: var(--rule); padding: 3px; }
+.st b { display: block; color: var(--ink); font-size: 15px; }
+.st.on { border-style: solid; border-color: var(--stamp); }
+.st.on .ns { border-color: var(--stamp); color: var(--stamp); transform: rotate(-8deg); }
+.st.off b { color: var(--muted); }
+
+/* 엔딩 */
+.ending { display: grid; gap: 16px; }
+.endhead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.endtitle { font-size: clamp(34px, 6vw, 56px); }
+.bigstamp { width: 120px; height: 120px; border-radius: 50%; border: 5px double var(--stamp); color: var(--stamp); display: grid; place-items: center; text-align: center; font-family: var(--f-display); font-size: 20px; line-height: 1.15; transform: rotate(-12deg); animation: thump .6s cubic-bezier(.3,1.6,.5,1); padding: 8px; }
+.endstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.endstats div { border: 1.5px solid var(--rule); border-radius: 10px; padding: 8px 10px; background: var(--paper); }
+.endstats small { display: block; color: var(--muted); font-size: 12.5px; }
+.endstats b { font-family: var(--f-num); font-size: 18px; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .ax { font-family: var(--f-num); font-size: 12px; fill: var(--muted); }
+.chart .gl { stroke: var(--rule); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 20px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.tl { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--ink); display: grid; gap: 4px; font-size: 14.5px; }
+.tl li { position: relative; }
+.tl li::before { content: ""; position: absolute; left: -20px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); }
+.tl b { font-family: var(--f-num); font-size: 13px; color: var(--muted); margin-right: 6px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+footer { text-align: center; font-size: 13px; color: var(--muted); }
+
+@media (max-width: 920px) {
+  .start, .game, .two { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; }
+  .endstats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .how, .facts { grid-template-columns: minmax(0, 1fr); }
+  .sheet { padding: 18px 14px 18px 44px; background-image: linear-gradient(90deg, transparent 30px, var(--margin) 30px, var(--margin) 32px, transparent 32px), repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px); }
+  .ledger { padding-left: 44px; }
+  .lrow { grid-template-columns: 70px minmax(0, 1fr) 96px; }
+  .endhead { grid-template-columns: minmax(0, 1fr); }
+  .bigstamp { width: 96px; height: 96px; font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><div class="seal">家</div><div><h1>한평생 가계부</h1><small>태어난 집은 고를 수 없어도, 돈을 쓰는 길은 내가 고릅니다.</small></div></div>
+    <div class="tools">
+      <button class="btn sm ghost" data-ov="stamps">개념 도장첩</button>
+      <button class="btn sm ghost" data-ov="dex">엔딩 도감</button>
+      <button class="btn sm ghost" data-ov="lives">지난 삶</button>
+      <button class="btn sm ghost" id="btn-home" hidden>처음으로</button>
+    </div>
+  </header>
+  <main id="app"></main>
+  <footer>한평생 가계부 · 금액과 확률은 경제 개념을 이해하도록 단순하게 만든 값이에요. 실제 투자나 금융 상품 안내가 아니에요.</footer>
+</div>
+<div id="ov" class="ov" hidden></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ===================== 기본 도구 ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rnd = Math.random;
+const pick = a => a[Math.floor(rnd() * a.length)];
+const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduced = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } })();
+
+function won(n, sign) {
+  const neg = n < 0; n = Math.round(Math.abs(n));
+  let s;
+  if (n >= 1e8) { const eok = Math.floor(n / 1e8), man = Math.round((n % 1e8) / 1e4); s = eok + "억" + (man ? " " + man.toLocaleString("ko-KR") + "만" : "") + "원"; }
+  else if (n >= 1e4) s = Math.round(n / 1e4).toLocaleString("ko-KR") + "만원";
+  else s = n.toLocaleString("ko-KR") + "원";
+  return (neg ? "−" : sign && n ? "+" : "") + s;
+}
+
+/* ===================== 경제 개념 ===================== */
+const CONCEPTS = {
+  budget:   ["용돈 관리", "들어올 돈을 먼저 알고, 쓸 곳을 미리 나누어 두는 것을 예산이라고 해요. 쓰기·모으기·나누기 봉투가 가장 쉬운 예산이에요."],
+  choice:   ["기회비용", "하나를 고르면 다른 하나는 포기하게 돼요. 포기한 것 가운데 가장 아까운 것의 가치가 기회비용이에요."],
+  prob:     ["확률", "8% 확률은 100번 중 8번쯤 나온다는 뜻이에요. 몇 번을 해도 반드시 나온다는 보장은 없어요."],
+  impulse:  ["충동구매", "계획에 없던 물건을 그 자리에서 사는 거예요. 하루만 기다려 보면 정말 필요한지 알 수 있어요."],
+  market:   ["시장과 가격", "가격이 너무 높으면 사려는 사람이 줄고, 낮으면 늘어요. 사는 사람과 파는 사람이 만나 값이 정해져요."],
+  interest: ["저축과 이자", "은행에 돈을 맡기면 은행은 그 돈을 쓰는 대가로 이자를 줘요. 저금통에 둔 돈은 늘지 않아요."],
+  compound: ["복리", "이자에 다시 이자가 붙는 거예요. 연 7%라면 약 10년 만에 돈이 두 배가 돼요. 일찍 시작할수록 힘이 커요."],
+  risk:     ["위험과 수익", "많이 벌 수 있는 곳일수록 크게 잃을 수도 있어요. '높은 수익, 위험 없음'은 세상에 없어요."],
+  diversify:["분산 투자", "달걀을 한 바구니에 담지 않는 거예요. 여러 회사에 나누어 투자하면 한 곳이 무너져도 덜 흔들려요."],
+  scam:     ["금융 사기", "'원금 보장에 큰 수익', '지금 당장 돈을 옮기세요'는 사기의 단골 문장이에요. 의심되면 끊고 가족과 기관에 직접 확인해요."],
+  wage:     ["근로소득", "일을 하고 받는 돈이에요. 시간과 노력, 쌓아 온 기술이 소득이 돼요."],
+  tax:      ["세금", "번 돈의 일부는 세금으로 내요. 세금은 학교, 도로, 소방서처럼 모두가 함께 쓰는 곳에 쓰여요."],
+  hcap:     ["배움에 투자하기", "공부와 기술도 투자예요. 지금 시간과 돈을 쓰면 나중에 할 수 있는 일과 소득이 넓어져요."],
+  credit:   ["신용", "약속한 날에 돈을 잘 갚는 사람이라는 믿음이에요. 신용이 좋으면 낮은 이자로 돈을 빌릴 수 있어요."],
+  loan:     ["대출과 이자", "빌린 돈에는 이자가 붙어요. 갚을 때는 빌린 돈보다 더 많이 갚아야 해요."],
+  insure:   ["보험", "여러 사람이 조금씩 돈을 모아 두었다가, 큰일을 당한 사람을 돕는 약속이에요. 꼭 필요한 만큼만 드는 게 중요해요."],
+  emergency:["비상금", "갑작스러운 일에 대비해 따로 모아 두는 돈이에요. 보통 생활비 3~6개월치를 권해요."],
+  inflation:["인플레이션", "물건값이 전체적으로 오르는 거예요. 같은 돈으로 살 수 있는 것이 줄어들어요. 라면값이 오르는 것을 보세요!"],
+  deprec:   ["감가상각", "자동차나 전자제품은 쓸수록, 시간이 지날수록 값이 떨어져요."],
+  pension:  ["연금", "일할 때 조금씩 모아 두었다가 나이가 들어 일을 쉴 때 나누어 받는 돈이에요."],
+  give:     ["나눔", "번 돈의 일부를 남을 돕는 데 쓰는 것도 중요한 경제 활동이에요. 나눔은 나와 이웃의 행복을 함께 키워요."],
+  startup:  ["창업", "스스로 사업을 시작하는 거예요. 성공하면 큰 보람과 소득이 있지만, 실패의 위험도 함께 져야 해요."],
+};
+
+/* ===================== 직업 ===================== */
+const JOBS = {
+  starter: ["사회 초년생", "작은 회사에서 일을 배우며 시작해요.", 2600e4, 0],
+  dev:     ["개발자", "앱과 서비스를 만드는 일을 해요.", 4800e4, .03],
+  nurse:   ["간호사", "병원에서 환자를 돌봐요.", 4200e4, 0],
+  teacher: ["교사", "학교에서 아이들을 가르쳐요.", 4000e4, 0],
+  office:  ["회사원", "회사에서 기획·영업·관리 일을 해요.", 3800e4, .01],
+  fire:    ["소방관", "불을 끄고 사람을 구해요.", 4000e4, 0],
+  tech:    ["전기 기술자", "건물과 공장의 전기 설비를 다뤄요.", 3900e4, 0],
+  chef:    ["요리사", "식당 주방에서 음식을 만들어요.", 3200e4, .02],
+  farm:    ["스마트팜 농부", "센서와 데이터로 작물을 키워요.", 3000e4, .15],
+  creator: ["크리에이터", "영상과 콘텐츠를 만들어요. 수입이 해마다 크게 달라요.", 3200e4, .55],
+  owner:   ["가게 사장님", "내 가게를 꾸려요.", 0, .25],
+};
+
+/* ===================== 투자처 ===================== */
+const ASSETS = {
+  fund:    ["분산 펀드", "여러 회사에 나누어 투자 · 보통 위험", .06, .14],
+  stock:   ["한 회사 주식", "한 회사에만 투자 · 큰 위험", .07, .38],
+  gold:    ["금", "값이 천천히 움직여요 · 낮은 위험", .03, .11],
+  pension: ["연금 저축", "은퇴 뒤 나누어 받아요 · 낮은 위험", .045, .05],
+};
+
+/* ===================== 출발 ===================== */
+const TIERS = {
+  rich:  ["넉넉한 집", 60000, "가족 여행도 자주 가고, 갖고 싶은 것을 비교적 쉽게 살 수 있어요."],
+  mid:   ["보통의 집", 36000, "꼭 필요한 것은 있지만, 큰 것을 사려면 모아야 해요."],
+  tight: ["빠듯한 집", 15000, "부모님이 늘 바쁘게 일하시고, 용돈은 적은 편이에요."],
+};
+const TIER_P = [["rich", .2], ["mid", .6], ["tight", .2]];
+const NAMES1 = ["김", "이", "박", "최", "정", "강", "조", "윤", "장", "임", "한", "오", "서", "신", "권"];
+const NAMES2 = ["하윤", "서준", "지우", "도윤", "서아", "시우", "하린", "은우", "지안", "예준", "수아", "이안", "유나", "건우", "채원", "로아", "주원", "다온"];
+const BIRTH_YEAR = 2018;
+
+/* ===================== 사건 ===================== */
+// 금액은 '지금 돈'으로 적고, 실제로는 그해 물가(G.infl)를 곱해 적용한다.
+const EV = {};
+const def = e => { EV[e.id] = e; };
+
+def({ id: "allow", title: "첫 용돈 받는 날", loc: "우리 집",
+  text: g => ["부모님이 이번 달부터 용돈을 주시기로 했어요.", `<span class="q">"한 달에 ${won(TIERS[g.tier][1] * g.infl)}이야. 어떻게 쓸지는 네가 정해 보렴."</span>`],
+  c: [
+    { t: "사고 싶은 걸 바로바로 산다", run: g => { setJars(g, 90, 10, 0, 0); return { fx: { happy: 5 } }; }, r: "과자, 스티커, 장난감… 하루하루가 신났어요. 그런데 월말이면 지갑이 텅 비었어요.", k: "budget" },
+    { t: "반은 쓰고 반은 저금통에 넣는다", run: g => { setJars(g, 50, 50, 0, 0); return {}; }, r: "저금통이 조금씩 무거워지는 게 은근히 뿌듯했어요.", k: "budget" },
+    { t: "쓰기·모으기·나누기 봉투를 따로 만든다", run: g => { setJars(g, 50, 40, 0, 10); return { fx: { learn: 3 } }; }, r: "봉투 세 개에 이름을 붙였어요. 나누기 봉투로는 친구 생일에 작은 선물을 할 수 있겠어요.", k: "budget" },
+  ],
+  after: "오른쪽 '돈 나누기'에서 비율을 언제든 바꿀 수 있어요. 해마다 들어온 돈이 이 비율대로 나뉘어요." });
+
+def({ id: "gacha", title: "문구점 뽑기 기계", loc: "문구점",
+  text: () => ["문구점 앞 뽑기 기계에 새 캐릭터 시리즈가 들어왔어요. 한 번에 1,000원.", '친구가 <span class="q">"나는 벌써 여덟 번 했는데 금색이 안 나왔어!"</span> 하고 말해요.'],
+  c: [
+    { t: "금색이 나올 때까지 뽑는다", tag: "1회 1,000원", need: g => g.cash >= 1000 * g.infl, needT: "통장에 1,000원 이상",
+      run: g => { const per = 1000 * g.infl; let n = 0, ok = false; while (g.cash >= per && n < 40) { g.cash -= per; n++; if (rnd() < .08) { ok = true; break; } }
+        g.flags.add("gacha");
+        return { r: ok ? `${n}번 만에 금색 캐릭터가 나왔어요! 그런데 쓴 돈을 세어 보니 ${won(n * per)}이었어요.` : `${n}번을 뽑았지만 끝내 금색은 나오지 않았어요. ${won(n * per)}이 사라졌어요.`, fx: { happy: ok ? 3 : -4 }, spent: n * per }; }, k: "prob", k2: "impulse" },
+    { t: "딱 한 번만 뽑아 본다", tag: "−1,000원", cost: 1000, run: () => rnd() < .08 ? { r: "한 번 만에 금색이 나왔어요! 친구들이 몰려와 구경했어요.", fx: { happy: 6 } } : { r: "은색이 나왔어요. 아쉽지만 약속대로 딱 한 번만 했어요.", fx: { happy: 1 } }, k: "prob" },
+    { t: "그 돈으로 친구랑 떡볶이를 사 먹는다", tag: "−3,000원", cost: 3000, fx: { happy: 4 }, r: "\"뽑기보다 이게 낫다!\" 둘이서 실컷 웃었어요.", k: "choice" },
+  ] });
+
+def({ id: "gift", title: "친구 생일 초대장", loc: "학교",
+  text: () => ["단짝 친구의 생일 파티에 초대받았어요.", "선물을 준비해야 하는데, 이번 달에 사고 싶던 만화책도 있어요."],
+  c: [
+    { t: "비싼 선물을 산다", tag: "−30,000원", cost: 30000, fx: { happy: 2, credit: 2 }, r: "친구가 깜짝 놀라며 좋아했어요. 대신 만화책은 한참 뒤로 미뤘어요.", k: "choice" },
+    { t: "정해 둔 예산 안에서 고른다", tag: "−10,000원", cost: 10000, fx: { happy: 3, learn: 1 }, r: "예산 안에서 고르느라 문구점을 세 바퀴나 돌았지만, 딱 맞는 선물을 찾았어요. 만화책도 살 수 있었어요.", k: "choice" },
+    { t: "직접 만든 카드와 쿠키를 준다", tag: "−3,000원", cost: 3000, fx: { happy: 4, learn: 2 }, r: "\"이거 네가 만든 거야?\" 친구가 카드를 책상에 붙여 두었대요.", k: "choice" },
+  ] });
+
+def({ id: "bank", title: "내 이름이 적힌 통장", loc: "은행",
+  text: g => [`저금통에 ${won(g.cash)}이 모였어요. 부모님이 은행에 가서 통장을 만들어 보자고 하세요.`, '은행 직원이 <span class="q">"통장에 넣어 두면 1년에 2.5%씩 이자가 붙어요."</span> 하고 알려 줬어요.'],
+  c: [
+    { t: "저금통 돈을 통장에 넣는다", run: g => { g.flags.add("bank"); return {}; }, r: "통장 첫 장에 내 이름이 찍혀 나왔어요. 이제 모은 돈에 해마다 이자가 붙어요.", k: "interest" },
+    { t: "아직은 저금통이 좋다", fx: { happy: 1 }, r: "저금통은 흔들면 짤랑 소리가 나서 좋아요. 하지만 돈이 저절로 늘지는 않아요.", k: "interest" },
+  ] });
+
+def({ id: "market", title: "학교 알뜰장터", loc: "학교 운동장",
+  text: () => ["학교에서 알뜰장터가 열려요. 안 쓰는 물건을 팔 수 있어요.", "아끼던 보드게임을 내놓기로 했어요. 새것일 때 2만원이었어요. 얼마를 받을까요?"],
+  c: [
+    { t: "15,000원 (거의 새것 값)", run: g => rnd() < .2 ? { r: "끝날 무렵 한 학생이 \"이거 꼭 갖고 싶었어!\" 하며 사 갔어요. 운이 좋았어요.", fx: { cash: 15000 } } : { r: "구경하는 친구는 많았는데 아무도 사지 않았어요. \"좀 비싼데…\" 하는 말이 들렸어요.", fx: { happy: -2 } }, k: "market" },
+    { t: "6,000원 (적당한 값)", run: g => rnd() < .85 ? { r: "장터가 열리자마자 팔렸어요. 다음에는 조금 더 받아도 됐을까요?", fx: { cash: 6000, happy: 2 } } : { r: "아쉽게 팔리지 않았어요. 다음 장터를 기다려요.", fx: {} }, k: "market" },
+    { t: "2,000원 (아주 싸게)", fx: { cash: 2000, happy: 1 }, r: "순식간에 팔렸어요. 사 간 동생이 너무 좋아해서 기분은 좋았어요.", k: "market" },
+  ] });
+
+def({ id: "phone", title: "최신 스마트폰", loc: "휴대폰 가게",
+  text: () => ["친구들이 하나둘 새 스마트폰을 들고 다녀요. 가격은 96만원.", '가게 직원이 <span class="q">"매달 조금씩만 내면 돼요! 할부 이자까지 합쳐도 얼마 안 해요."</span> 하고 웃어요.'],
+  c: [
+    { t: "할부로 새 폰을 산다", tag: "빚 +106만원", run: g => { g.debt += 1060000 * g.infl; g.flags.add("phoneLoan"); return { fx: { happy: 6 } }; }, r: "새 폰은 정말 좋았어요. 그런데 앞으로 몇 년 동안 용돈에서 빚을 갚아야 해요.", k: "loan" },
+    { t: "모은 돈으로 1년 지난 모델을 산다", tag: "−45만원", cost: 450000, need: g => g.cash >= 450000 * g.infl, needT: "통장에 45만원 이상", fx: { happy: 4 }, r: "새것 같은 작년 모델을 반값에 샀어요. 친구들은 차이를 잘 몰랐어요.", k: "choice" },
+    { t: "지금 폰을 더 쓰고 돈을 모은다", fx: { happy: -2, learn: 1 }, r: "조금 아쉬웠지만, 모은 돈이 더 큰 기회가 될지도 몰라요.", k: "choice" },
+  ] });
+
+def({ id: "compound", title: "할머니의 눈덩이 이야기", loc: "할머니 댁",
+  text: () => ["설날에 할머니가 세뱃돈 20만원을 주시며 물어보셨어요.", '<span class="q">"눈덩이를 굴리면 점점 커지지? 돈도 잘 굴리면 스스로 커진단다. 이자에 또 이자가 붙거든."</span>'],
+  c: [
+    { t: "여러 회사에 나누어 투자하는 펀드를 시작한다", run: g => { g.cash += 200000 * g.infl; unlockInvest(g, "fund"); return {}; }, r: "부모님과 함께 펀드 통장을 만들었어요. 이제 '불리기' 돈은 펀드로 들어가요.", k: "compound", k2: "diversify" },
+    { t: "좋아하는 게임 회사 주식을 사 본다", run: g => { g.cash += 200000 * g.infl; unlockInvest(g, "stock"); return {}; }, r: "내가 좋아하는 회사의 주인이 된 기분이에요! 대신 그 회사가 흔들리면 내 돈도 흔들려요.", k: "compound", k2: "risk" },
+    { t: "그냥 은행 통장에 넣어 둔다", run: g => { g.cash += 200000 * g.infl; g.flags.add("bank"); unlockInvest(g, null); return {}; }, r: "가장 안전한 길을 골랐어요. 언제든 투자처는 오른쪽에서 바꿀 수 있어요.", k: "interest", k2: "compound" },
+  ],
+  after: "이제 '불리기' 봉투를 쓸 수 있어요. 오른쪽에서 어디에 투자할지 고를 수 있어요." });
+
+def({ id: "scam_teen", title: "돈 복사 광고", loc: "SNS",
+  text: () => ['SNS에 <span class="q">"1만원 넣으면 일주일 뒤 10만원! 100% 보장!"</span> 광고가 떴어요.', "댓글에는 \"진짜 받았어요!\" 하는 인증 글이 가득해요."],
+  c: [
+    { t: "5만원만 넣어 본다", tag: "−5만원", cost: 50000, run: g => { g.flags.add("scammed"); g.scams++; return { fx: { happy: -4 } }; }, r: "일주일 뒤 그 계정은 사라졌어요. 인증 댓글도 모두 가짜였어요.", k: "scam" },
+    { t: "부모님께 보여 드리고 신고한다", fx: { credit: 3, learn: 3 }, r: "\"잘했다! 이런 게 바로 금융 사기야.\" 신고한 계정은 며칠 뒤 정지됐어요.", k: "scam" },
+    { t: "그냥 무시하고 넘긴다", fx: { learn: 1 }, r: "너무 좋은 이야기는 의심부터 하는 게 맞아요.", k: "scam" },
+  ] });
+
+def({ id: "parttime", title: "첫 아르바이트", loc: "동네 빵집",
+  text: g => ["동네 빵집에서 주말 아르바이트생을 구해요.", `<span class="q">"시급은 ${won(10320 * g.infl)}이에요. 토요일, 일요일 하루 6시간씩 할 수 있겠어요?"</span>`],
+  c: [
+    { t: "주말마다 아르바이트를 한다", run: g => { g.flags.add("ptFull"); return { fx: { learn: -4, happy: 2 } }; }, r: "첫 월급날, 통장에 찍힌 숫자를 몇 번이나 다시 봤어요. 대신 공부할 시간은 줄었어요.", k: "wage" },
+    { t: "방학에만 짧게 한다", run: g => { g.flags.add("ptHalf"); return { fx: { learn: 1 } }; }, r: "방학 동안 빵 굽는 냄새 속에서 일했어요. 일하는 사람의 하루를 조금 알게 됐어요.", k: "wage" },
+    { t: "공부와 자격증 준비에 집중한다", fx: { learn: 8, happy: -1 }, r: "도서관에서 보낸 주말이 쌓였어요. 이것도 나에게 하는 투자예요.", k: "hcap" },
+  ] });
+
+def({ id: "college", title: "스무 살의 갈림길", loc: "진로 상담실",
+  text: g => ["고등학교 졸업이 다가와요. 앞으로 무엇을 배울지 정해야 해요.", `지금 나의 배움 점수는 <b>${Math.round(g.learn)}</b>이에요. 배움이 높을수록 고를 수 있는 직업이 많아져요.`],
+  c: [
+    { t: "대학에 간다", tag: "학자금 대출 2,000만원", run: g => { g.debt += 2000e4 * g.infl; g.flags.add("uni"); g.studyUntil = 23; return { fx: { learn: 25 } }; }, r: "4년 동안 공부하며 더 넓은 세상을 만났어요. 졸업장과 함께 갚아야 할 학자금도 생겼어요.", k: "hcap", k2: "loan" },
+    { t: "기술을 배우는 전문 학교에 간다", tag: "−500만원", cost: 500e4, run: g => { g.flags.add("techschool"); g.studyUntil = 21; return { fx: { learn: 15 } }; }, r: "2년 동안 손으로 익히는 기술을 배웠어요. 실습실의 기계 소리가 익숙해졌어요.", k: "hcap" },
+    { t: "바로 일을 시작한다", run: g => { setJob(g, "starter"); return { fx: { learn: 3 } }; }, r: "다른 친구들보다 먼저 월급을 받기 시작했어요. 일하면서 배우는 것도 많았어요.", k: "wage" },
+  ] });
+
+const JOB_REQ = {
+  dev: [g => g.learn >= 72, "배움 72 이상"], nurse: [g => g.learn >= 62, "배움 62 이상"],
+  teacher: [g => g.learn >= 62 && g.flags.has("uni"), "대학 졸업, 배움 62 이상"], office: [g => g.learn >= 48, "배움 48 이상"],
+  fire: [g => g.hp >= 62, "건강 62 이상"], tech: [g => g.flags.has("techschool") || g.learn >= 55, "전문 학교 또는 배움 55 이상"],
+  chef: [() => true, ""], farm: [() => true, ""], creator: [() => true, ""],
+};
+def({ id: "job", title: "첫 직장", loc: "취업 박람회",
+  text: g => ["드디어 직업을 고를 때예요. 쌓아 온 배움과 건강이 선택지를 넓혀 줘요.", `배움 <b>${Math.round(g.learn)}</b> · 건강 <b>${Math.round(g.hp)}</b> · 연봉은 세금을 떼기 전 금액이에요.`],
+  c: g => Object.keys(JOB_REQ).map(id => ({
+    t: `${JOBS[id][0]} — ${JOBS[id][1]}`, tag: id === "creator" ? "연봉 들쭉날쭉" : "연봉 " + won(JOBS[id][2] * g.infl),
+    need: JOB_REQ[id][0], needT: JOB_REQ[id][1],
+    run: gg => { setJob(gg, id); return {}; }, r: `${JOBS[id][0]}(으)로 첫 출근을 했어요. 첫 월급 명세서에는 세금과 보험료를 뗀 금액이 찍혀 있었어요.`, k: "wage", k2: "tax" })) });
+
+def({ id: "card", title: "첫 신용카드", loc: "은행 창구",
+  text: () => ["은행에서 신용카드를 만들어 줬어요.", '곧 문자가 왔어요. <span class="q">"리볼빙 신청하면 이번 달 결제 금액의 10%만 내셔도 돼요!"</span>'],
+  c: [
+    { t: "리볼빙을 신청하고 마음껏 쓴다", tag: "빚 +600만원", run: g => { g.debt += 600e4 * g.infl; g.flags.add("revolve"); return { fx: { happy: 6, credit: -14 } }; }, r: "갖고 싶던 걸 잔뜩 샀어요. 그런데 다음 달부터 남은 금액에 높은 이자가 붙기 시작했어요.", k: "credit", k2: "loan" },
+    { t: "통장에 있는 돈만큼만 쓴다", fx: { credit: 8 }, r: "카드값을 한 번도 밀리지 않았어요. 은행이 나를 믿을 만한 사람으로 보기 시작했어요.", k: "credit" },
+    { t: "카드는 서랍에 넣어 둔다", fx: { credit: 3 }, r: "현금과 체크카드로 지냈어요. 쓴 만큼 바로 빠져나가니 계산이 쉬웠어요.", k: "credit" },
+  ] });
+
+def({ id: "insure", title: "보험 상담", loc: "카페",
+  text: () => ["보험 설계사가 찾아왔어요.", '<span class="q">"한 달 10만원이면 큰 병이나 사고가 났을 때 병원비 대부분을 돌려받아요."</span>'],
+  c: [
+    { t: "꼭 필요한 실손 보험 하나만 든다", tag: "매년 −120만원", run: g => { g.costs.insure = 120e4; g.flags.add("insured"); return {}; }, r: "꼭 필요한 보장만 골랐어요. 큰일이 생기면 병원비 걱정을 덜 수 있어요.", k: "insure" },
+    { t: "보장이 많은 보험을 여러 개 든다", tag: "매년 −360만원", run: g => { g.costs.insure = 360e4; g.flags.add("insured"); return { fx: { happy: -1 } }; }, r: "든든하긴 한데, 매달 빠져나가는 보험료가 꽤 묵직해요.", k: "insure" },
+    { t: "아직 젊으니 들지 않는다", r: "당장 나가는 돈은 없어요. 대신 큰일이 생기면 모두 내 돈으로 감당해야 해요.", k: "insure" },
+  ] });
+
+def({ id: "car", title: "자동차를 살까?", loc: "자동차 매장",
+  text: () => ["출퇴근길이 멀어져 차가 있으면 좋겠다는 생각이 들어요.", "새 차는 3,500만원, 3년 된 중고차는 1,800만원이에요. 차가 있으면 기름값·보험료도 매년 들어요."],
+  c: [
+    { t: "새 차를 산다", tag: "−3,500만원", cost: 3500e4, run: g => { g.costs.car = 420e4; return { fx: { happy: 6 } }; }, r: "새 차 냄새가 참 좋았어요. 그런데 1년 만에 이 차의 중고값이 700만원이나 떨어졌어요.", k: "deprec" },
+    { t: "중고차를 산다", tag: "−1,800만원", cost: 1800e4, run: g => { g.costs.car = 380e4; return { fx: { happy: 3 } }; }, r: "조금 낡았지만 잘 달려요. 값이 이미 많이 떨어진 차라 앞으로는 덜 떨어져요.", k: "deprec" },
+    { t: "대중교통과 자전거로 다닌다", fx: { hp: 4 }, r: "출근길에 책도 읽고, 자전거로 운동도 했어요.", k: "choice" },
+  ] });
+
+def({ id: "home", title: "나만의 집", loc: "부동산",
+  text: g => ["독립할 때가 되었어요. 어디서 살까요?", `작은 아파트는 3억원이에요. 사려면 6,000만원은 내 돈이 있어야 하고, 나머지는 대출을 받아요. 지금 통장에는 ${won(g.cash)}이 있어요.`],
+  c: [
+    { t: "월세 집을 구한다", tag: "매년 −900만원", run: g => { g.costs.house = 900e4; return { fx: { happy: 3 } }; }, r: "작지만 나만의 공간이 생겼어요. 매달 나가는 월세는 돌아오지 않는 돈이에요.", k: "choice" },
+    { t: "대출을 받아 작은 집을 산다", tag: "−6,000만원 · 대출 2억 4천", need: g => g.cash >= 6000e4 * g.infl, needT: "통장에 6,000만원 이상",
+      run: g => { g.cash -= 6000e4 * g.infl; g.house = 3e8 * g.infl; g.mortgage = 2.4e8 * g.infl; g.costs.house = 150e4; return { fx: { happy: 6 } }; }, r: "내 이름의 집 열쇠를 받았어요. 앞으로 오랫동안 대출 원금과 이자를 갚아야 해요.", k: "loan" },
+    { t: "부모님 집에서 조금 더 지낸다", tag: "매년 −200만원", run: g => { g.costs.house = 200e4; return { fx: { happy: -2 } }; }, r: "월세가 안 나가니 돈이 빨리 모였어요. 가끔은 혼자만의 공간이 그리웠어요.", k: "choice" },
+  ] });
+
+def({ id: "startup", title: "가게를 차려 볼까?", loc: "골목 상가",
+  text: g => ["오래 꿈꿔 온 가게가 있어요. 차리려면 5,000만원이 필요해요.", `성공할 가능성은 배움(${Math.round(g.learn)})과 신용(${Math.round(g.credit)})이 높을수록 커져요.`],
+  c: [
+    { t: "모은 돈으로 창업한다", tag: "−5,000만원", cost: 5000e4, need: g => g.cash >= 5000e4 * g.infl, needT: "통장에 5,000만원 이상", run: g => startup(g, false), k: "startup", k2: "risk" },
+    { t: "대출을 받아 창업한다", tag: "빚 +5,000만원", need: g => g.credit >= 45, needT: "신용 45 이상", run: g => { g.debt += 5000e4 * g.infl; return startup(g, true); }, k: "startup", k2: "loan" },
+    { t: "지금 하던 일을 계속한다", fx: { learn: 2 }, r: "꿈은 공책 한구석에 적어 두었어요. 언젠가 준비가 더 되면 다시 꺼내 볼 거예요.", k: "choice" },
+  ],
+  skip: g => g.retired });
+
+def({ id: "learn", title: "새로운 기술", loc: "회사",
+  text: () => ["일터에 AI 도구가 들어오면서 일하는 방식이 빠르게 바뀌고 있어요.", "새로운 기술을 배워 둘까요?"],
+  c: [
+    { t: "저녁 수업에 등록한다", tag: "−300만원", cost: 300e4, run: g => { g.salary *= 1.15; return { fx: { learn: 15, happy: -1 } }; }, r: "피곤한 저녁이 이어졌지만, 배운 기술 덕분에 더 중요한 일을 맡게 됐어요. 연봉도 올랐어요.", k: "hcap" },
+    { t: "영상으로 혼자 공부한다", run: g => { g.salary *= 1.05; return { fx: { learn: 7, hp: -2 } }; }, r: "출퇴근길마다 강의를 들었어요. 조금씩 일이 편해졌어요.", k: "hcap" },
+    { t: "하던 대로 한다", run: g => { g.flags.add("obsolete"); return { fx: { learn: -5 } }; }, r: "당장은 편했어요. 하지만 새 기술을 쓰는 후배들이 점점 늘어났어요.", k: "hcap" },
+  ],
+  skip: g => g.retired || !g.job });
+
+def({ id: "parent", title: "부모님의 병원비", loc: "병원",
+  text: () => ["부모님이 갑자기 수술을 받으셔야 해요. 병원비는 1,200만원이에요."],
+  c: [
+    { t: "모아 둔 비상금으로 낸다", tag: "−1,200만원", cost: 1200e4, need: g => g.cash >= 1200e4 * g.infl, needT: "통장에 1,200만원 이상", fx: { happy: 2 }, r: "모아 둔 돈 덕분에 망설이지 않고 수술을 받으실 수 있었어요.", k: "emergency" },
+    { t: "형제자매와 나누어 낸다", tag: "−600만원", cost: 600e4, fx: { happy: 1 }, r: "가족이 함께 힘을 모았어요. 혼자였다면 훨씬 막막했을 거예요.", k: "emergency" },
+    { t: "대출을 받아 낸다", tag: "빚 +1,200만원", run: g => { g.debt += 1200e4 * g.infl; return { fx: { happy: -2 } }; }, r: "급한 불은 껐지만, 갚아야 할 돈이 늘었어요.", k: "loan" },
+  ] });
+
+def({ id: "pension", title: "노후 준비", loc: "은행 창구",
+  text: () => ["은퇴까지 10년쯤 남았어요. 일을 쉬어도 생활비는 계속 들어요.", '<span class="q">"지금부터 연금 저축에 넣으면 나중에 해마다 연금으로 나누어 받을 수 있어요."</span>'],
+  c: [
+    { t: "연금 저축을 시작한다", run: g => { g.flags.add("pension"); g.growTo = "pension"; if (g.jars.grow < 20) shiftJar(g, "grow", 20 - g.jars.grow); return {}; }, r: "연금 통장을 새로 열었어요. 이제 '불리기' 돈이 연금 저축으로 들어가요.", k: "pension" },
+    { t: "모아 둔 돈이면 충분할 거야", r: "따로 준비하지는 않기로 했어요. 은퇴 뒤에는 모아 둔 돈과 국민연금으로 살아가요.", k: "pension" },
+    { t: "그 돈으로 먼저 여행을 다녀온다", tag: "−500만원", cost: 500e4, fx: { happy: 7 }, r: "오래 꿈꾸던 곳에 다녀왔어요. 노후 준비는 조금 늦어졌어요.", k: "choice" },
+  ] });
+
+def({ id: "retire", title: "은퇴할 나이", loc: "회사",
+  text: () => ["어느덧 은퇴할 나이가 되었어요. 앞으로 어떻게 지낼까요?"],
+  c: [
+    { t: "은퇴하고 연금으로 생활한다", run: g => { retireNow(g); return { fx: { happy: 4, hp: 3 } }; }, r: "출근하지 않는 첫 월요일, 느긋하게 산책을 했어요.", k: "pension" },
+    { t: "5년 더 일한다", run: g => { g.retireAt = 67; return { fx: { hp: -3 } }; }, r: "아직 할 수 있는 일이 많아요. 그만큼 연금과 저축도 더 쌓여요.", k: "wage" },
+    { t: "은퇴하고 동네 공부방 봉사를 한다", run: g => { retireNow(g); return { fx: { happy: 6 }, give: 0 }; }, r: "아이들에게 수학과 돈 관리를 가르쳐요. 돈은 안 받지만 보람이 커요.", k: "give" },
+  ],
+  skip: g => g.retired });
+
+def({ id: "scam_old", title: "낯선 번호의 전화", loc: "우리 집",
+  text: () => ['<span class="q">"검찰청입니다. 고객님 계좌가 범죄에 쓰였어요. 안전 계좌로 돈을 옮기세요."</span>', "목소리가 아주 다급해요."],
+  c: [
+    { t: "시키는 대로 돈을 옮긴다", run: g => { const l = Math.min(g.cash, 3000e4 * g.infl); g.cash -= l; g.scams++; g.flags.add("scammed"); return { r: `${won(l)}을 보냈어요. 다음 날 진짜 은행에 물어보니 그런 '안전 계좌'는 없었어요.`, fx: { happy: -10 } }; }, k: "scam" },
+    { t: "전화를 끊고 은행에 직접 확인한다", fx: { learn: 2 }, r: "\"그런 전화는 모두 사기예요.\" 은행 직원이 말했어요. 침착하게 대처했어요.", k: "scam" },
+    { t: "바로 가족에게 알린다", fx: { happy: 2 }, r: "가족과 함께 신고했어요. 같은 전화를 받은 이웃에게도 조심하라고 알려 주었어요.", k: "scam" },
+  ] });
+
+def({ id: "legacy", title: "무엇을 남길까", loc: "우리 집",
+  text: () => ["일흔다섯 번째 생일이에요. 지나온 가계부를 넘겨 보며 생각에 잠겼어요."],
+  c: [
+    { t: "어려운 학생들을 위해 장학금을 기부한다", tag: "−1,000만원", cost: 1000e4, need: g => g.cash >= 1000e4 * g.infl, needT: "통장에 1,000만원 이상", run: g => { g.give += 1000e4 * g.infl; return { fx: { happy: 9 } }; }, r: "\"할머니·할아버지 장학금\"을 받은 학생에게서 손편지가 왔어요.", k: "give" },
+    { t: "가족과 긴 여행을 떠난다", tag: "−800만원", cost: 800e4, fx: { happy: 8 }, r: "손주들과 바닷가를 거닐었어요. 오래 기억될 사진이 잔뜩 생겼어요.", k: "choice" },
+    { t: "남은 날을 위해 아껴 둔다", fx: { happy: 1 }, r: "든든한 통장이 마음을 편하게 해 주었어요.", k: "emergency" },
+  ] });
+
+/* 무작위 사건 묶음 */
+def({ id: "crash", pool: [25, 75], title: "주식 시장이 무너졌어요", loc: "뉴스",
+  req: g => g.inv.fund + g.inv.stock > 300e4 * g.infl,
+  text: g => ["뉴스마다 \"주가 폭락\"이라는 말이 나와요. 내 투자 통장도 빨갛게 물들었어요.", `지금 펀드 ${won(g.inv.fund)}, 주식 ${won(g.inv.stock)}이 들어 있어요.`],
+  c: [
+    { t: "무서워서 모두 팔아 버린다", run: g => { crashHit(g); const s = g.inv.fund + g.inv.stock; g.cash += s; g.inv.fund = g.inv.stock = 0; return { r: `떨어진 값에 모두 팔아 ${won(s)}을 통장으로 옮겼어요. 몇 년 뒤 시장은 다시 올랐지만, 내 돈은 그 자리에 없었어요.`, fx: { happy: -4 } }; }, k: "risk" },
+    { t: "길게 보고 그대로 둔다", run: g => { crashHit(g); g.rebound = 2; return { fx: { happy: -2 } }; }, r: "마음은 쓰렸지만 꾹 참았어요. 좋은 회사들은 결국 다시 일어선다고 믿었어요.", k: "diversify" },
+    { t: "값이 쌀 때 조금 더 산다", need: g => g.cash >= 300e4 * g.infl, needT: "통장에 300만원 이상", run: g => { crashHit(g); const m = Math.min(g.cash * .3, 2000e4 * g.infl); g.cash -= m; g.inv.fund += m; g.rebound = 2; return { r: `떨어진 값에 ${won(m)}만큼 펀드를 더 샀어요. 떨리는 결정이었어요.`, fx: {} }; }, k: "diversify" },
+  ] });
+
+def({ id: "hot", pool: [26, 60], title: "친구의 대박 투자 제안", loc: "모임",
+  text: () => ["오랜만에 만난 친구가 귓속말을 했어요.", '<span class="q">"원금 보장에 한 달 5%씩 수익이 나는 데가 있어. 1,000만원만 넣어 봐. 나만 믿어."</span>'],
+  c: [
+    { t: "친구를 믿고 1,000만원을 넣는다", need: g => g.cash >= 1000e4 * g.infl, needT: "통장에 1,000만원 이상", cost: 1000e4, run: g => { g.scams++; g.flags.add("scammed"); return { fx: { happy: -8, credit: -3 } }; }, r: "석 달 동안 이자가 들어오더니 갑자기 연락이 끊겼어요. 친구도 속은 것이었어요.", k: "scam" },
+    { t: "금융감독원에 등록된 곳인지 확인한다", fx: { learn: 3, credit: 2 }, r: "등록되지 않은 곳이었어요. 친구에게도 조심하라고 알려 주었어요.", k: "scam", k2: "risk" },
+    { t: "정중히 거절한다", fx: { learn: 1 }, r: "\"고마운데 나는 내 방식대로 할게.\" 웃으며 넘겼어요.", k: "risk" },
+  ] });
+
+def({ id: "inflation", pool: [24, 65], title: "장바구니 물가가 올랐어요", loc: "마트",
+  text: g => { g.infl *= 1.05; return [`같은 장을 봤는데 계산대 금액이 작년보다 훨씬 커졌어요. 라면 한 봉지가 ${won(1000 * g.infl)}이 되었어요.`, "물가가 오르면 같은 돈으로 살 수 있는 것이 줄어들어요."]; },
+  c: [
+    { t: "가계부를 다시 짜서 쓰기를 줄인다", run: g => { if (g.jars.spend >= 10) shiftJar(g, "save", 10); return { fx: { learn: 2, happy: -1 } }; }, r: "꼭 필요한 것과 갖고 싶은 것을 나누어 적어 보았어요. 생각보다 줄일 곳이 많았어요.", k: "inflation", k2: "budget" },
+    { t: "연봉 협상을 해 본다", need: g => !!g.job && !g.retired, needT: "일하는 중일 때", run: g => rnd() < .35 + g.learn / 250 ? (g.salary *= 1.07, { r: "그동안의 성과를 정리해 보여 주었더니 연봉이 7% 올랐어요!" }) : { r: "\"올해는 회사 사정이 어렵네요.\" 이번에는 오르지 않았어요.", fx: { happy: -2 } }, k: "inflation", k2: "wage" },
+    { t: "그냥 버틴다", fx: { happy: -3 }, r: "통장 잔고가 왠지 작아 보였어요.", k: "inflation" },
+  ] });
+
+def({ id: "tax", pool: [24, 60], title: "연말정산", loc: "회사",
+  req: g => !!g.job && !g.retired,
+  text: () => ["1년 동안 미리 낸 세금을 다시 계산하는 연말정산 기간이에요.", "기부금, 교통비, 병원비 영수증을 챙기면 세금을 돌려받을 수 있어요."],
+  c: [
+    { t: "영수증과 공제 항목을 꼼꼼히 챙긴다", run: g => ({ fx: { cash: 60e4 + (g.give > 0 ? 30e4 : 0), learn: 2 } }), r: "세금을 돌려받았어요! 기부한 돈도 공제 항목이었어요.", k: "tax" },
+    { t: "귀찮아서 대충 낸다", fx: {}, r: "돌려받을 수 있었던 돈을 놓쳤어요.", k: "tax" },
+  ] });
+
+def({ id: "pet", pool: [27, 55], title: "유기견 보호소", loc: "보호소",
+  text: () => ["주말에 들른 보호소에서 꼬리를 흔드는 강아지를 만났어요.", "키우면 사료, 병원비로 해마다 180만원쯤 들어요."],
+  c: [
+    { t: "입양해서 가족이 된다", tag: "매년 −180만원", run: g => { g.costs.pet = 180e4; return { fx: { happy: 9, hp: 2 } }; }, r: "집에 오면 꼬리를 흔들며 반겨 주는 가족이 생겼어요.", k: "choice" },
+    { t: "한 달에 한 번 봉사를 간다", fx: { happy: 4 }, r: "산책 봉사를 하며 강아지들과 친해졌어요.", k: "give" },
+    { t: "지금은 여유가 없다", r: "아쉽지만 책임질 수 있을 때 다시 생각하기로 했어요.", k: "choice" },
+  ] });
+
+def({ id: "donate", pool: [30, 78], title: "이웃 돕기 모금", loc: "동네",
+  text: () => ["겨울을 앞두고 동네 복지관에서 난방비 모금을 해요."],
+  c: [
+    { t: "100만원을 기부한다", tag: "−100만원", cost: 100e4, run: g => { g.give += 100e4 * g.infl; return { fx: { happy: 6, credit: 2 } }; }, r: "복지관에서 보낸 감사 편지를 냉장고에 붙여 두었어요.", k: "give" },
+    { t: "10만원을 기부한다", tag: "−10만원", cost: 10e4, run: g => { g.give += 10e4 * g.infl; return { fx: { happy: 3 } }; }, r: "작은 정성이 모이면 큰 힘이 돼요.", k: "give" },
+    { t: "다음 기회에 한다", r: "이번에는 지나쳤어요.", k: "give" },
+  ] });
+
+def({ id: "health", pool: [42, 80], title: "건강검진 결과", loc: "병원",
+  text: () => ["건강검진 결과지에 빨간 글씨가 몇 개 보여요.", '<span class="q">"지금부터 관리하시면 충분히 좋아질 수 있어요."</span>'],
+  c: [
+    { t: "운동을 시작한다", tag: "매년 −60만원", run: g => { g.costs.gym = 60e4; return { fx: { hp: 12, happy: 2 } }; }, r: "처음엔 계단만 올라도 숨이 찼는데, 석 달 뒤엔 가볍게 뛸 수 있었어요.", k: "hcap" },
+    { t: "식단을 바꾸고 걷기부터 한다", fx: { hp: 7 }, r: "돈은 안 들었지만 꾸준함이 필요했어요.", k: "choice" },
+    { t: "바빠서 나중으로 미룬다", fx: { hp: -8 }, r: "몸이 보내는 신호를 모른 척했어요.", k: "choice" },
+  ] });
+
+def({ id: "travel", pool: [24, 62], title: "꿈의 여행", loc: "여행사",
+  text: () => ["오래 꿈꾸던 나라로 떠나는 여행 상품이 나왔어요. 600만원이에요."],
+  c: [
+    { t: "꿈의 여행을 떠난다", tag: "−600만원", cost: 600e4, fx: { happy: 10 }, r: "책에서만 보던 풍경 앞에 섰어요. 평생 꺼내 볼 추억이 생겼어요.", k: "choice" },
+    { t: "가까운 국내 여행으로 바꾼다", tag: "−150만원", cost: 150e4, fx: { happy: 6 }, r: "가까운 곳에도 아름다운 데가 많았어요.", k: "choice" },
+    { t: "그 돈을 모은다", fx: { happy: -1 }, r: "여행 대신 통장이 조금 더 두꺼워졌어요.", k: "choice" },
+  ] });
+
+def({ id: "sidejob", pool: [28, 58], title: "주말 부업", loc: "온라인",
+  req: g => !!g.job && !g.retired,
+  text: () => ["취미로 하던 사진 찍기를 부업으로 해 보라는 권유를 받았어요."],
+  c: [
+    { t: "주말마다 부업을 한다", run: g => { g.side = 400e4; return { fx: { happy: -2, hp: -3 } }; }, r: "주말 수입이 생겼어요. 대신 쉬는 날이 줄었어요.", k: "wage" },
+    { t: "취미로만 즐긴다", fx: { happy: 3 }, r: "돈이 되지 않아도 즐거운 일은 그 자체로 소중해요.", k: "choice" },
+  ] });
+
+/* 갑자기 생기는 일 */
+def({ id: "jobloss", title: "일자리를 잃었어요", loc: "회사",
+  text: g => ["회사가 어려워져 일자리를 잃었어요. 새 일을 찾을 때까지 몇 달이 걸릴 것 같아요.", `생활비는 한 달에 약 ${won(livingCost(g) / 12)}씩 들어요. 통장에는 ${won(g.cash)}이 있어요.`],
+  c: [
+    { t: "비상금으로 버티며 원하는 일을 찾는다", need: g => g.cash >= livingCost(g) * .5, needT: "통장에 생활비 6개월치 이상", run: g => { g.cash -= livingCost(g) * .5; return { fx: { happy: -3 } }; }, r: "비상금 덕분에 서두르지 않고 나에게 맞는 일을 다시 찾았어요.", k: "emergency" },
+    { t: "대출로 버틴다", run: g => { g.debt += livingCost(g) * .5; return { fx: { happy: -6, credit: -4 } }; }, r: "새 일을 찾았지만, 그동안 생긴 빚을 갚아야 해요.", k: "loan", k2: "emergency" },
+    { t: "월급이 적어도 바로 일을 시작한다", run: g => { g.salary *= .85; return { fx: { happy: -4 } }; }, r: "바로 일을 시작했어요. 월급은 전보다 줄었어요.", k: "emergency" },
+  ] });
+
+def({ id: "sick", title: "갑자기 아팠어요", loc: "병원",
+  text: g => ["몸이 많이 아파 큰 병원에서 치료를 받아야 한대요. 치료비는 1,500만원이에요.", g.flags.has("insured") ? "다행히 보험이 있어요." : "보험은 들어 두지 않았어요."],
+  c: [
+    { t: "바로 치료를 받는다", run: g => { const cost = 1500e4 * g.infl * (g.flags.has("insured") ? .15 : 1); pay(g, cost); return { r: g.flags.has("insured") ? `보험 덕분에 ${won(cost)}만 냈어요. 보험료가 아깝지 않은 순간이었어요.` : `치료비 ${won(cost)}을 모두 냈어요.`, fx: { hp: 12, happy: -3 } }; }, k: "insure", k2: "emergency" },
+    { t: "돈이 걱정돼 치료를 미룬다", fx: { hp: -15, happy: -5 }, r: "병은 미룬다고 사라지지 않았어요.", k: "insure" },
+  ] });
+
+/* 정해진 순서 */
+const SCHED = [
+  [8, "allow"], [9, "gacha"], [10, "gift"], [11, "bank"], [12, "market"], [13, "phone"], [14, "compound"], [15, "scam_teen"],
+  [17, "parttime"], [19, "college"], [23, "job"], [24, "card"], [26, "insure"], [28, "car"], [30, "home"], [33, "R"],
+  [36, "startup"], [39, "R"], [42, "learn"], [46, "R"], [50, "parent"], [54, "pension"], [57, "R"], [62, "retire"],
+  [66, "R"], [70, "scam_old"], [75, "legacy"], [80, "R"], [86, "R"],
+];
+
+/* ===================== 엔딩 ===================== */
+const ENDS = {
+  wise:     ["넉넉하고 행복한 살림꾼", "모을 때 모으고 쓸 때 쓸 줄 알았어요. 통장도 마음도 넉넉한 한평생이었어요."],
+  miser:    ["통장만 두둑한 구두쇠", "돈은 산처럼 쌓였지만, 정작 그 돈으로 누린 기쁨은 많지 않았어요. 돈은 쓰임이 있을 때 빛나요."],
+  jackpot:  ["위험을 이긴 투자가", "큰 위험을 무릅쓴 투자가 운 좋게 크게 불어났어요. 같은 선택을 한 다른 사람들도 모두 그랬을까요?"],
+  founder:  ["꿈을 이룬 사장님", "위험을 감수하고 내 가게를 열어 끝내 자리 잡았어요. 동네 사람들이 단골이 되었어요."],
+  giver:    ["나눔으로 기억되는 사람", "번 돈의 일부를 꾸준히 이웃과 나누었어요. 그 마음을 받은 사람들이 또 누군가를 돕고 있어요."],
+  learner:  ["평생 배우는 사람", "나이가 들어도 배우기를 멈추지 않았어요. 배움이 일과 삶의 길을 계속 넓혀 주었어요."],
+  healthy:  ["건강이 최고의 자산", "몸을 아끼고 돌본 덕분에 아흔이 넘도록 건강하게 지냈어요. 건강은 돈으로 다 살 수 없는 자산이에요."],
+  steady:   ["성실한 보통의 하루들", "크게 벌거나 크게 잃지 않았어요. 차곡차곡 쌓은 평범한 날들이 든든한 한평생이 되었어요."],
+  happy:    ["소소하게 행복한 사람", "큰 부자는 아니었지만 작은 즐거움을 놓치지 않았어요. 웃음이 많은 가계부였어요."],
+  yolo:     ["오늘만 산 베짱이", "젊을 때는 즐거웠지만 모아 둔 것이 없어 나이 들어 힘든 날이 많았어요. 오늘과 내일 사이의 균형이 필요했어요."],
+  debt:     ["빚에 쫓긴 한평생", "빌린 돈의 이자가 눈덩이처럼 불어났어요. 이자도 복리로 커진다는 것을 잊으면 안 돼요."],
+  scammed:  ["너무 쉽게 믿은 사람", "\"원금 보장에 큰 수익\"이라는 말에 여러 번 속았어요. 의심하는 것도 소중한 돈 공부예요."],
+};
+const END_ORDER = ["debt", "scammed", "founder", "jackpot", "giver", "wise", "miser", "healthy", "learner", "yolo", "happy", "steady"];
+
+/* ===================== 상태 ===================== */
+let G = null, view = "start", busy = false;
+
+function newGame(name) {
+  const r = rnd(); let acc = 0, tier = "mid";
+  for (const [k, p] of TIER_P) { acc += p; if (r < acc) { tier = k; break; } }
+  return {
+    name, tier, age: 8, year: BIRTH_YEAR + 8, infl: 1,
+    cash: tier === "rich" ? 100000 : tier === "mid" ? 30000 : 0, debt: 0, house: 0, mortgage: 0,
+    inv: { fund: 0, stock: 0, gold: 0, pension: 0 },
+    jars: { spend: 60, save: 40, grow: 0, give: 0 }, growTo: null,
+    happy: 55, hp: 65, learn: tier === "rich" ? 30 : tier === "mid" ? 22 : 15, credit: 60,
+    job: null, salary: 0, retired: false, retireAt: 62, studyUntil: 0, side: 0,
+    costs: {}, flags: new Set(), stamps: [], used: [], chosen: [], ledger: [], hist: [],
+    give: 0, spent: 0, earned: 0, interest: 0, invPL: 0, scams: 0, rebound: 0, si: 0,
+    cur: null, phase: "event", endId: null, deathAge: null,
+  };
+}
+const ser = g => JSON.stringify(Object.assign({}, g, { flags: [...g.flags] }));
+const deser = s => { const g = JSON.parse(s); g.flags = new Set(g.flags); return g; };
+const saveGame = () => { if (G) store.set("hp.save", ser(G)); };
+
+function setJars(g, s, v, gr, gv) { g.jars = { spend: s, save: v, grow: gr, give: gv }; }
+function shiftJar(g, to, amt) {
+  // to 봉투에 amt만큼 더하고, 쓰기 → 모으기 → 나머지 순으로 빼 온다
+  const order = ["spend", "save", "give", "grow"].filter(k => k !== to);
+  let left = amt;
+  for (const k of order) { const t = Math.min(left, g.jars[k]); g.jars[k] -= t; left -= t; if (!left) break; }
+  g.jars[to] += amt - left;
+}
+function unlockInvest(g, to) { g.flags.add("invest"); if (to) { g.growTo = to; if (g.jars.grow < 10) shiftJar(g, "grow", 10); } else g.growTo = g.growTo || "fund"; }
+function setJob(g, id) { g.job = id; g.salary = id === "creator" ? JOBS.creator[2] * g.infl : JOBS[id][2] * g.infl; g.workStart = g.workStart || g.age; }
+function retireNow(g) { g.retired = true; g.pensionBase = (g.job === "owner" ? g.salary * .6 : g.salary) * .32 * Math.min(1, (g.age - (g.workStart || g.age)) / 30); }
+function crashHit(g) { g.inv.fund *= .72; g.inv.stock *= .55; g.inv.gold *= 1.08; }
+function pay(g, amt) { if (g.cash >= amt) g.cash -= amt; else { g.debt += amt - g.cash; g.cash = 0; } }
+function startup(g, loan) {
+  const p = clamp(.1 + g.learn / 330 + g.credit / 500, .15, .6);
+  if (rnd() < p) {
+    g.flags.add("founder"); const old = g.salary || 3000e4 * g.infl; g.job = "owner"; g.salary = old * 1.7;
+    return { r: "처음 1년은 정말 힘들었지만, 단골이 하나둘 늘더니 가게가 자리를 잡았어요!", fx: { happy: 8, learn: 5 } };
+  }
+  g.flags.add("startupFail");
+  return { r: loan ? "열심히 했지만 2년 만에 가게 문을 닫았어요. 대출금은 그대로 남았어요." : "열심히 했지만 2년 만에 가게 문을 닫았어요. 모아 둔 돈을 거의 잃었어요.", fx: { happy: -8, learn: 4 } };
+}
+
+/* ===================== 한 해 계산 ===================== */
+function livingCost(g) {
+  if (g.age < 20 || (g.studyUntil && g.age < g.studyUntil && !g.job)) return 0;
+  const base = (g.retired ? 1300e4 : 1500e4) + (g.costs.house || (g.age >= 20 ? 300e4 : 0)) + (g.costs.car || 0) + (g.costs.insure || 0) + (g.costs.pet || 0) + (g.costs.gym || 0);
+  return base * g.infl;
+}
+function taxRate(gross, infl) { const r = gross / infl; return r <= 3000e4 ? .1 : r <= 5000e4 ? .15 : .22; }
+
+function yearSim(g) {
+  const lines = [], add = (d, m, tone) => lines.push({ y: g.year, a: g.age, d, m, tone });
+  const crash = g.age >= 22 && rnd() < .07;
+  // 물가
+  const ir = clamp(.024 + gauss() * .01, -.005, .06); g.infl *= 1 + ir;
+  // 수입
+  let income = 0, label = "";
+  if (g.age < 14) { income = TIERS[g.tier][1] * 12 * g.infl; label = "용돈"; }
+  else if (g.age < 20) {
+    income = TIERS[g.tier][1] * 12 * 1.5 * g.infl; label = "용돈";
+    if (g.age >= 17) { if (g.flags.has("ptFull")) { income += 600e4 * g.infl; label = "용돈·알바"; } else if (g.flags.has("ptHalf")) { income += 150e4 * g.infl; label = "용돈·알바"; } }
+  } else if (g.studyUntil && g.age < g.studyUntil && !g.job) { income = 300e4 * g.infl; label = "방학 아르바이트"; }
+  else if (!g.job && !g.retired) { setJob(g, g.flags.has("techschool") ? "tech" : "starter"); }
+  if (g.job && !g.retired) {
+    if (g.age >= g.retireAt) { retireNow(g); add("은퇴했어요. 이제부터 연금을 받아요.", 0, "good"); }
+    else {
+      let gross = g.salary;
+      const vol = JOBS[g.job][3];
+      if (vol) gross = Math.max(g.salary * .25, g.salary * (1 + gauss() * vol));
+      if (g.job === "creator") g.salary *= 1 + gauss() * .08 + .02;
+      const tr = taxRate(gross, g.infl), net = gross * (1 - tr) + g.side * g.infl;
+      income = net; label = `${JOBS[g.job][0]} 월급(세금 뗀 돈)`;
+      g.salary *= 1 + ir + (g.age < 50 ? .015 + g.learn / 4000 : 0);
+      g.tax = (g.tax || 0) + gross * tr;
+    }
+  }
+  if (g.retired) {
+    income = (g.pensionBase || 0) * (g.infl / (g.pensionInfl || (g.pensionInfl = g.infl)));
+    label = "국민연금";
+    if (g.inv.pension > 0 && g.age >= 65) { const p = g.inv.pension / Math.max(5, 90 - g.age); g.inv.pension -= p; income += p; label = "국민연금·연금 저축"; }
+  }
+  g.earned += income;
+  if (income) add(label, income, "good");
+  // 생활비
+  const living = livingCost(g); let R = income - living;
+  if (living) add("생활비" + (g.costs.house ? "·집" : "") + (g.costs.car ? "·차" : "") + (g.costs.insure ? "·보험" : ""), -living);
+  // 주택 대출
+  if (g.mortgage > 0) {
+    const intr = g.mortgage * .045, prin = Math.min(g.mortgage, 900e4 * g.infl);
+    g.mortgage -= prin; R -= intr + prin; g.interest -= intr;
+    add("집 대출 갚기(원금+이자)", -(intr + prin));
+  }
+  if (g.house) g.house *= 1 + ir + .005 + gauss() * .05;
+  // 빚 이자
+  if (g.debt > 0) {
+    const rate = g.credit < 40 ? .12 : g.flags.has("revolve") && g.age < 30 ? .16 : .07;
+    const intr = g.debt * rate; g.debt += intr; g.interest -= intr;
+    add(`빚 이자 (연 ${Math.round(rate * 100)}%)`, -intr, "bad");
+    // 남는 돈의 절반까지 먼저 빚을 갚는다
+    if (R > 0) { const p = Math.min(g.debt, R * .6); g.debt -= p; R -= p; if (p) add("빚 갚기", -p); }
+    // 통장에 여유가 있으면 비상금(생활비 반년치)만 남기고 빚부터 갚는다
+    const spare = g.cash - Math.max(livingCost(g) * .5, 50e4 * g.infl);
+    if (spare > 0 && g.debt > 0) { const p = Math.min(spare, g.debt); g.cash -= p; g.debt -= p; add("통장 돈으로 빚 갚기", -p); }
+    if (g.debt < 1) g.debt = 0;
+    if (g.debt > Math.max(income, 1) * 1.5) g.credit -= 3;
+  }
+  // 돈 나누기
+  let spend = 0, giveAmt = 0;
+  if (R >= 0) {
+    const j = g.jars, growOk = g.flags.has("invest") && g.growTo;
+    spend = R * j.spend / 100; giveAmt = R * j.give / 100;
+    const save = R * (j.save + (growOk ? 0 : j.grow)) / 100, grow = growOk ? R * j.grow / 100 : 0;
+    g.cash += save; if (grow) g.inv[g.growTo] += grow;
+    g.give += giveAmt; g.spent += spend;
+    const parts = [];
+    if (spend) parts.push(`쓰기 ${won(spend)}`);
+    if (save) parts.push(`모으기 ${won(save)}`);
+    if (grow) parts.push(`불리기 ${won(grow)}`);
+    if (giveAmt) parts.push(`나누기 ${won(giveAmt)}`);
+    if (parts.length) add(parts.join(" · "), 0);
+  } else {
+    if (g.cash >= -R) { g.cash += R; add("모자란 생활비를 통장에서 꺼냈어요", 0, "bad"); }
+    else { const short = -R - g.cash; g.cash = 0; g.debt += short; g.credit -= 4; add("돈이 모자라 빚이 생겼어요", short, "bad"); }
+  }
+  // 이자와 투자
+  const dep = g.flags.has("bank") ? g.cash * .025 : 0;
+  if (dep >= 1) { g.cash += dep; g.interest += dep; add("예금 이자", dep, "good"); }
+  let pl = 0;
+  for (const k of ["fund", "stock", "gold", "pension"]) {
+    if (!g.inv[k]) continue;
+    let r = ASSETS[k][2] + gauss() * ASSETS[k][3];
+    if (k === "stock" && rnd() < .04) r = -.6;
+    if (crash) r = k === "fund" ? -.28 : k === "stock" ? -.45 : k === "gold" ? .1 : r;
+    if (g.rebound > 0 && (k === "fund" || k === "stock")) r += .12;
+    r = Math.max(r, -.85);
+    const d = g.inv[k] * r; g.inv[k] += d; pl += d;
+    if (k === "stock" && r > .6) g.flags.add("riskWin");
+    if (k === "stock" && r <= -.5) g.flags.add("riskLoss");
+  }
+  if (g.rebound > 0) g.rebound--;
+  if (pl) { g.invPL += pl; add(crash ? "투자 수익 · 시장 폭락!" : "투자 수익", pl, pl >= 0 ? "good" : "bad"); }
+  // 능력치
+  const share = income > 0 ? spend / income : 0, gshare = income > 0 ? giveAmt / income : 0;
+  let target = 42 + 50 * Math.sqrt(share) + 24 * Math.sqrt(gshare) + (g.costs.pet ? 4 : 0);
+  if (g.debt > income) target -= 10;
+  if (g.hp < 40) target -= 10;
+  if (g.age >= 62 && g.cash + g.inv.fund + g.inv.gold + g.inv.pension < livingCost(g) * 3) target -= 12;
+  g.happy += (target - g.happy) * .22;
+  if (g.age < 20) g.learn += g.flags.has("ptFull") && g.age >= 17 ? 0.6 : 1.6;
+  else if (g.studyUntil && g.age < g.studyUntil) g.learn += 2;
+  else g.learn += g.flags.has("obsolete") ? -.6 : -.15;
+  g.hp += g.age < 30 ? .1 : g.age < 50 ? -.35 : g.age < 70 ? -.8 : -1.4;
+  if (g.costs.gym) g.hp += .5;
+  g.credit += g.debt === 0 ? .6 : -.2;
+  for (const k of ["happy", "hp", "learn", "credit"]) g[k] = clamp(g[k], 0, 100);
+  // 기록
+  g.hist.push({ a: g.age, t: total(g), r: total(g) / g.infl });
+  g.ledger.push(...lines);
+  if (g.ledger.length > 200) g.ledger.splice(0, g.ledger.length - 200);
+  g.age++; g.year++;
+  return { lines, crash };
+}
+const total = g => g.cash + g.inv.fund + g.inv.stock + g.inv.gold + g.inv.pension + g.house - g.debt - g.mortgage;
+
+/* ===================== 진행 ===================== */
+function nextEventAge(g) { const s = SCHED.find(([a]) => a > g.curAge); return s ? s[0] : null; }
+function pickEvent(g, slot) {
+  if (slot !== "R") return EV[slot];
+  const pool = Object.values(EV).filter(e => e.pool && g.age >= e.pool[0] && g.age <= e.pool[1] && !g.used.includes(e.id) && (!e.req || e.req(g)));
+  return pool.length ? pick(pool) : null;
+}
+function beginAt(g, slot) {
+  const e = pickEvent(g, slot);
+  if (!e || (e.skip && e.skip(g))) return null;
+  g.cur = { id: e.id, text: (typeof e.text === "function" ? e.text(g) : e.text) };
+  g.used.push(e.id); g.phase = "event";
+  return e;
+}
+function choiceList(e, g) { return typeof e.c === "function" ? e.c(g) : e.c; }
+
+function applyChoice(i) {
+  const e = EV[G.cur.id], c = choiceList(e, G)[i];
+  if (!c || (c.need && !c.need(G))) return;
+  const before = snap(G);
+  if (c.cost) pay(G, c.cost * G.infl);
+  if (c.cost) G.spent += c.cost * G.infl;
+  let res = c.run ? c.run(G) || {} : {};
+  const fx = Object.assign({}, c.fx || {}, res.fx || {});
+  for (const k in fx) {
+    if (k === "cash") G.cash += fx[k] * G.infl;
+    else G[k] = clamp(G[k] + fx[k], 0, 100);
+  }
+  if (res.spent) G.spent += res.spent;
+  const after = snap(G);
+  const newStamps = [];
+  for (const k of [c.k, c.k2].filter(Boolean)) {
+    if (!G.stamps.includes(k)) G.stamps.push(k);
+    const all = store.get("hp.stamps", []);
+    if (!all.includes(k)) { all.push(k); store.set("hp.stamps", all); newStamps.push(k); }
+  }
+  G.chosen.push({ a: G.age, y: G.year, t: e.title, c: c.t });
+  G.cur.result = { r: res.r || c.r || "", diff: diffOf(before, after), k: c.k, k2: c.k2, newStamps, choice: c.t };
+  G.phase = "result";
+  saveGame(); render();
+}
+const snap = g => ({ money: total(g), happy: g.happy, hp: g.hp, learn: g.learn, credit: g.credit });
+function diffOf(a, b) { const d = {}; for (const k in a) { const v = b[k] - a[k]; if (Math.abs(v) >= (k === "money" ? 1 : .5)) d[k] = v; } return d; }
+
+async function advance() {
+  if (busy) return; busy = true;
+  const g = G; g.curAge = g.age;
+  const target = nextEventAge(g);
+  const end = target == null ? 99 : target;
+  g.phase = "years"; g.cur = null; render();
+  const box = $("#lrows");
+  while (g.age < end) {
+    const { lines, crash } = yearSim(g);
+    if (box) {
+      for (const l of lines) box.insertAdjacentHTML("beforeend", rowHTML(l, true));
+      box.scrollTop = box.scrollHeight;
+      renderSide();
+      await sleep(reduced ? 0 : 160);
+    }
+    // 노년의 마지막 장
+    if (g.age >= 72 && !g.deathAge) {
+      const p = .012 + (g.age - 72) * .007 + Math.max(0, 50 - g.hp) * .0025;
+      if (rnd() < p || g.age >= 96) { g.deathAge = g.age; break; }
+    }
+    // 갑작스러운 일 (정해진 갈림길과 겹치면 건너뛴다)
+    if (g.age >= end) continue;
+    if (g.job && !g.retired && g.age >= 24) {
+      const p = (crash ? .12 : .025) + (g.flags.has("obsolete") ? .05 : 0);
+      if (rnd() < p && !g.used.includes("jobloss_" + g.age)) { g.used.push("jobloss_" + g.age); g.cur = { id: "jobloss", text: EV.jobloss.text(g) }; g.phase = "event"; break; }
+    }
+    if (g.age >= 30 && rnd() < (g.hp < 40 ? .12 : .018) && g.used.filter(x => x.startsWith("sick")).length < 3) {
+      g.used.push("sick_" + g.age); g.cur = { id: "sick", text: EV.sick.text(g) }; g.phase = "event"; break;
+    }
+  }
+  busy = false;
+  if (g.deathAge) return finish();
+  if (g.phase === "event" && g.cur) { saveGame(); return render(); }
+  if (g.age >= end) {
+    const slot = SCHED.find(([a]) => a === g.age);
+    if (slot && beginAt(g, slot[1])) { saveGame(); return render(); }
+    if (target == null) { g.deathAge = g.age; return finish(); }
+    return advance();
+  }
+}
+
+function finish() {
+  const g = G;
+  g.phase = "end";
+  const real = total(g) / g.infl, earnedReal = g.earned / Math.max(g.infl, 1);
+  const spendRatio = g.spent / Math.max(g.earned, 1);
+  const conds = {
+    debt: g.debt + g.mortgage > g.cash + g.inv.fund + g.inv.stock + g.inv.gold + g.inv.pension + g.house * .5 && g.debt > 1000e4 * g.infl,
+    scammed: g.scams >= 2,
+    founder: g.flags.has("founder"),
+    jackpot: g.flags.has("riskWin") && g.inv.stock > total(g) * .4 && real > 12e8,
+    giver: g.give / g.infl >= 1e8,
+    wise: real >= 5e8 && g.happy >= 58,
+    miser: real >= 5e8 && g.happy < 44,
+    healthy: g.deathAge >= 92,
+    learner: g.learn >= 80,
+    yolo: real < 1.5e8 && spendRatio > .14,
+    happy: g.happy >= 63,
+    steady: true,
+  };
+  g.endId = END_ORDER.find(k => conds[k]);
+  g.real = real; g.earnedReal = earnedReal;
+  const dex = store.get("hp.dex", []); if (!dex.includes(g.endId)) { dex.push(g.endId); store.set("hp.dex", dex); g.newEnd = true; }
+  const lives = store.get("hp.lives", []);
+  lives.unshift({ n: g.name, tier: g.tier, end: g.endId, age: g.deathAge, real: Math.round(real), at: Date.now() });
+  store.set("hp.lives", lives.slice(0, 30));
+  try { localStorage.removeItem("hp.save"); } catch (e) {}
+  render();
+}
+
+/* ===================== 그리기 ===================== */
+const app = () => $("#app");
+function render() {
+  $("#btn-home").hidden = view === "start" || view === "birth";
+  if (view === "start") return renderStart();
+  if (view === "birth") return renderBirth();
+  if (G && G.phase === "end") return renderEnd();
+  renderGame();
+}
+
+function renderStart() {
+  const lives = store.get("hp.lives", []), saved = store.get("hp.save", null);
+  app().innerHTML = `<section class="start">
+    <div class="sheet hero">
+      <span class="eyebrow">경제 인생 시뮬레이션 · 초등 고학년~중학생</span>
+      <h2>첫 용돈부터<br><em>마지막 장부</em>까지</h2>
+      <p class="lead">같은 해에 태어나도 형편은 저마다 달라요. 하지만 돈을 어떻게 쓰고, 모으고, 불리고, 나눌지는 내가 정해요. 한 사람의 평생을 가계부로 살아 보세요.</p>
+      <div class="how">
+        <div><b>태어나기</b>집안 형편과 용돈이 무작위로 정해져요</div>
+        <div><b>선택하기</b>뽑기, 할부, 투자, 사기… 갈림길마다 골라요</div>
+        <div><b>돌아보기</b>평생 자산 그래프와 엔딩, 경제 개념 도장을 모아요</div>
+      </div>
+      <label for="nm" class="small">이름 (비워 두면 무작위)</label>
+      <div class="namerow"><input id="nm" maxlength="8" placeholder="예: 김하윤" autocomplete="off"><button class="btn sm ghost" id="btn-rname">무작위 이름</button></div>
+      <div class="namerow"><button class="btn pri" id="btn-born">태어나기</button>${saved ? `<button class="btn" id="btn-cont">이어서 하기</button>` : ""}</div>
+    </div>
+    <div class="sheet plain">
+      <h3 style="font-size:22px">같은 해 태어난 100명이라면</h3>
+      <p class="small" style="margin-top:4px">이 게임에서 집안 형편이 정해지는 비율이에요.</p>
+      <div class="dist">${TIER_P.map(([k, p]) => `<div class="drow"><span>${TIERS[k][0]}</span><span class="dbar"><i style="width:${p * 100}%"></i></span><span class="num">${p * 100}명</span></div>`).join("")}</div>
+      <p class="small" style="margin-top:10px">출발선은 다르지만, 엔딩은 형편보다 선택에 더 크게 좌우되도록 만들었어요. 빠듯한 집에서도 '넉넉하고 행복한 살림꾼'이 될 수 있어요.</p>
+      <h3 style="font-size:18px;margin-top:18px">지난 삶</h3>
+      <div class="lives">${lives.length ? lives.slice(0, 6).map(l => `<div><span>${esc(l.n)} · ${TIERS[l.tier][0]}</span><span>${ENDS[l.end][0]}</span></div>`).join("") : `<p class="small">아직 지나간 삶이 없어요. 첫 삶을 시작해 보세요.</p>`}</div>
+    </div></section>`;
+}
+
+function renderBirth() {
+  const g = G, t = TIERS[g.tier];
+  app().innerHTML = `<section class="sheet birth">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="eyebrow">출생 기록</span><span class="stamp-date">${BIRTH_YEAR}년생</span></div>
+    <div><span class="small">이름</span><div class="bname" style="font-family:var(--f-display)">${esc(g.name)}</div></div>
+    <p style="font-size:18px">${BIRTH_YEAR}년, <span class="tierchip">${t[0]}</span>에서 태어났어요. ${t[2]}</p>
+    <div class="facts">
+      <div><small>여덟 살 한 달 용돈</small><b class="num">${won(t[1])}</b></div>
+      <div><small>처음 저금통</small><b class="num">${won(g.cash)}</b></div>
+      <div><small>라면 한 봉지 (지금)</small><b class="num">1,000원</b></div>
+      <div><small>행복</small><b class="num">${g.happy}</b></div>
+      <div><small>건강</small><b class="num">${g.hp}</b></div>
+      <div><small>배움</small><b class="num">${g.learn}</b></div>
+    </div>
+    <p class="small">해마다 들어오는 돈은 '돈 나누기' 비율대로 쓰기·모으기·불리기·나누기 봉투에 들어가요. 갈림길에서는 선택지를 고르고, 그사이 몇 해는 가계부가 자동으로 적혀요.</p>
+    <div><button class="btn pri" id="btn-open">첫 장 펼치기</button></div>
+  </section>`;
+}
+
+function renderGame() {
+  const g = G;
+  app().innerHTML = `<section class="game">
+    <div class="left">
+      <div class="strip" aria-label="인생 진행">${stripHTML(g)}</div>
+      <div class="sheet event" id="evbox">${eventHTML(g)}</div>
+      <div class="sheet ledger"><h3>가계부</h3><div class="lrows" id="lrows">${g.ledger.slice(-14).map(l => rowHTML(l)).join("")}</div></div>
+    </div>
+    <aside class="side" id="side"></aside></section>`;
+  renderSide();
+  const box = $("#lrows"); if (box) box.scrollTop = box.scrollHeight;
+}
+function stripHTML(g) {
+  const evAges = new Set(SCHED.map(s => s[0]));
+  let h = "";
+  for (let a = 8; a <= 90; a++) h += `<i class="${a < g.age ? "done" : ""} ${evAges.has(a) ? "ev" : ""} ${a === g.age ? "cur" : ""}" title="${a}세"></i>`;
+  return h;
+}
+function eventHTML(g) {
+  if (g.phase === "years") return `<span class="stamp-date">${g.year}년 · ${g.age}세</span><h2>시간이 흘러요…</h2><p class="small">아래 가계부에 해마다 들어오고 나간 돈이 적히고 있어요.</p>`;
+  const e = EV[g.cur.id];
+  const head = `<span class="stamp-date">${g.year}년 · ${g.age}세 · ${esc(e.loc)}</span><h2>${e.title}</h2><div class="text">${g.cur.text.map(t => `<p>${t}</p>`).join("")}</div>`;
+  if (g.phase === "event") {
+    const cs = choiceList(e, g);
+    return head + `<div class="choices">${cs.map((c, i) => { const ok = !c.need || c.need(g);
+      return `<button class="choice" data-c="${i}" ${ok ? "" : "disabled"}><span class="k">${i + 1}</span><span>${esc(c.t)}</span><span class="tag ${c.tag && /−|빚/.test(c.tag) ? "minus" : ""}">${esc(c.tag || "")}</span>${!ok && c.needT ? `<span class="need">필요: ${esc(c.needT)}</span>` : ""}</button>`; }).join("")}</div>`;
+  }
+  const r = g.cur.result;
+  const chips = Object.entries(r.diff).map(([k, v]) => {
+    const nm = { money: "자산", happy: "행복", hp: "건강", learn: "배움", credit: "신용" }[k];
+    const txt = k === "money" ? won(v, true) : (v > 0 ? "+" : "−") + Math.abs(Math.round(v));
+    return `<span class="chip ${v >= 0 ? "plus" : "minus"}">${nm} ${txt}</span>`;
+  }).join("");
+  const notes = [r.k, r.k2].filter(Boolean).map(k => `<div class="note ${r.newStamps.includes(k) ? "new" : ""}"><div class="ns">${CONCEPTS[k][0]}</div><div><b>${CONCEPTS[k][0]}</b>${r.newStamps.includes(k) ? `<span class="nw">새 도장</span>` : ""}<p>${CONCEPTS[k][1]}</p></div></div>`).join("");
+  return head + `<div class="result"><p class="small">▶ ${esc(r.choice)}</p><p class="r">${r.r}</p>${chips ? `<div class="chips">${chips}</div>` : ""}${notes}
+    ${e.after ? `<p class="small">${e.after}</p>` : ""}
+    <div class="nextrow"><span class="small">${nextHint(g)}</span><button class="btn pri" id="btn-next">다음 장으로</button></div></div>`;
+}
+function nextHint(g) { const n = SCHED.find(([a]) => a > g.age); return n ? `다음 갈림길까지 ${n[0] - g.age}년` : "남은 날들을 살아요"; }
+function rowHTML(l, anim) {
+  const m = l.m ? `<span class="m ${l.m > 0 ? "plus" : "minus"}">${won(l.m, true)}</span>` : `<span class="m"></span>`;
+  return `<div class="lrow ${anim ? "in" : ""} ${l.tone || ""}"><span class="y">${l.y} · ${l.a}세</span><span class="d" title="${esc(l.d)}">${esc(l.d)}</span>${m}</div>`;
+}
+function renderSide() {
+  const g = G, el = $("#side"); if (!el) return;
+  const T = total(g), inv = g.inv.fund + g.inv.stock + g.inv.gold + g.inv.pension;
+  const job = g.retired ? "은퇴 · 연금 생활" : g.job ? JOBS[g.job][0] + " · 연봉 " + won(g.salary) : g.age < 20 ? "학생 · 용돈 " + won(TIERS[g.tier][1] * g.infl) + "/월" : "학생";
+  const stat = (k, n, c) => `<div class="stat"><span>${n}</span><span class="bar"><i style="width:${g[k]}%;background:var(${c})"></i></span><b>${Math.round(g[k])}</b></div>`;
+  const J = [["spend", "쓰기", "지금 누리는 기쁨", "--j-spend"], ["save", "모으기", g.flags.has("bank") ? "통장 · 이자 2.5%" : "저금통 · 이자 없음", "--j-save"], ["grow", "불리기", g.flags.has("invest") ? "투자로 키우기" : "14세에 열려요", "--j-grow"], ["give", "나누기", "기부·선물", "--j-give"]];
+  const growOpts = Object.keys(ASSETS).filter(k => k !== "pension" || g.flags.has("pension"));
+  el.innerHTML = `
+    <div class="sheet plain">
+      <div class="who"><h2>${esc(g.name)}</h2><span class="age">${g.age}세 · ${g.year}</span></div>
+      <div class="job">${esc(job)}</div>
+      <div class="total"><small>내 자산 (가진 것 − 빚)</small><div class="big ${T < 0 ? "minus" : ""}">${won(T)}</div><div class="real">지금 돈 가치로 약 ${won(T / g.infl)}</div></div>
+      <div class="parts">
+        <div><span>통장</span><span>${won(g.cash)}</span></div>
+        ${inv ? `<div><span>투자 (${Object.keys(ASSETS).filter(k => g.inv[k] >= 1).map(k => ASSETS[k][0]).join("·")})</span><span>${won(inv)}</span></div>` : ""}
+        ${g.house ? `<div><span>집</span><span>${won(g.house)}</span></div>` : ""}
+        ${g.mortgage ? `<div><span>집 대출</span><span class="minus">${won(-g.mortgage)}</span></div>` : ""}
+        ${g.debt ? `<div><span>빚</span><span class="minus">${won(-g.debt)}</span></div>` : ""}
+      </div>
+      <div class="ramen"><span>라면 한 봉지</span><b>${won(1000 * g.infl)}</b></div>
+    </div>
+    <div class="sheet plain stats">${stat("happy", "행복", "--s-happy")}${stat("hp", "건강", "--s-hp")}${stat("learn", "배움", "--s-learn")}${stat("credit", "신용", "--s-credit")}</div>
+    <div class="sheet plain jars">
+      <h3>돈 나누기</h3>
+      <div class="mixbar">${J.map(j => `<i style="width:${g.jars[j[0]]}%;background:var(${j[3]})"></i>`).join("")}</div>
+      ${J.map(j => { const locked = j[0] === "grow" && !g.flags.has("invest");
+        return `<div class="jar" style="--jc:var(${j[3]})"><span class="dot"><i style="height:${g.jars[j[0]]}%"></i></span><span>${j[1]}<small>${j[2]}</small></span>
+          <button class="pm" data-j="${j[0]}" data-d="-10" ${g.jars[j[0]] <= 0 || locked || busy ? "disabled" : ""} aria-label="${j[1]} 줄이기">−</button>
+          <span class="pct">${g.jars[j[0]]}%</span>
+          <button class="pm" data-j="${j[0]}" data-d="10" ${g.jars[j[0]] >= 100 || locked || busy ? "disabled" : ""} aria-label="${j[1]} 늘리기">+</button></div>`; }).join("")}
+      ${g.flags.has("invest") ? `<div class="grow-to"><label for="growto">불리기 투자처</label><select id="growto">${growOpts.map(k => `<option value="${k}" ${g.growTo === k ? "selected" : ""}>${ASSETS[k][0]} — ${ASSETS[k][1]}</option>`).join("")}</select></div>` : `<p class="lockmsg">불리기는 열네 살에 열려요. 그전까지 불리기 몫은 모으기로 들어가요.</p>`}
+    </div>`;
+}
+
+function renderEnd() {
+  const g = G, e = ENDS[g.endId];
+  const stamps = g.stamps.map(k => `<span class="chip" style="color:var(--stamp)">${CONCEPTS[k][0]}</span>`).join("");
+  app().innerHTML = `<section class="ending">
+    <div class="sheet">
+      <div class="endhead">
+        <div><span class="eyebrow">${esc(g.name)}의 한평생 · ${BIRTH_YEAR}–${BIRTH_YEAR + g.deathAge} · ${TIERS[g.tier][0]}에서 출발</span>
+          <h2 class="endtitle">${e[0]}</h2><p style="font-size:18px;margin-top:8px;max-width:36em">${e[1]}</p>
+          <p class="small" style="margin-top:8px">${g.deathAge}세에 한평생 가계부의 마지막 장을 덮었어요.${g.newEnd ? " 엔딩 도감에 새 엔딩이 기록됐어요!" : ""}</p></div>
+        <div class="bigstamp">${e[0].replace(/ /, "<br>")}</div>
+      </div>
+    </div>
+    <div class="endstats">
+      <div><small>마지막 자산</small><b>${won(total(g))}</b></div>
+      <div><small>지금 돈 가치로</small><b>${won(g.real)}</b></div>
+      <div><small>평생 번 돈</small><b>${won(g.earned)}</b></div>
+      <div><small>평생 나눈 돈</small><b>${won(g.give)}</b></div>
+      <div><small>이자·투자로 늘어난 돈</small><b class="${g.interest + g.invPL >= 0 ? "plus" : "minus"}">${won(g.interest + g.invPL, true)}</b></div>
+      <div><small>라면 한 봉지</small><b>1,000원 → ${won(1000 * g.infl)}</b></div>
+      <div><small>마지막 행복</small><b>${Math.round(g.happy)}</b></div>
+      <div><small>사기 피해</small><b>${g.scams}번</b></div>
+    </div>
+    <div class="two">
+      <div class="sheet plain chart"><h3 style="font-size:20px;margin-bottom:6px">평생 자산 그래프</h3>${assetChart(g)}
+        <div class="legend"><span><i style="background:var(--ink)"></i>통장에 찍힌 금액</span><span><i style="background:var(--minus)"></i>지금 돈 가치로 바꾼 금액</span></div>
+        <p class="small" style="margin-top:6px">두 선의 차이가 물가 상승(인플레이션)이에요. 숫자는 커져도 살 수 있는 물건은 그만큼 늘지 않아요.</p></div>
+      <div class="sheet plain"><h3 style="font-size:20px;margin-bottom:8px">나의 갈림길</h3><ul class="tl">${g.chosen.map(c => `<li><b>${c.a}세</b>${esc(c.t)} — ${esc(c.c)}</li>`).join("")}</ul></div>
+    </div>
+    <div class="sheet plain"><h3 style="font-size:20px;margin-bottom:8px">이번 삶에서 찍은 경제 개념 도장 ${g.stamps.length}개</h3><div class="chips">${stamps}</div></div>
+    <div class="nextrow"><button class="btn" data-ov="dex">엔딩 도감 보기</button><button class="btn pri" id="btn-again">다시 태어나기</button></div>
+  </section>`;
+}
+function axisWon(v) { const a = Math.abs(v), s = v < 0 ? "−" : ""; return a >= 1e8 ? s + (a / 1e8).toFixed(a >= 1e9 ? 0 : 1) + "억" : a >= 1e4 ? s + Math.round(a / 1e4).toLocaleString("ko-KR") + "만" : "0"; }
+function assetChart(g) {
+  const H = g.hist; if (H.length < 2) return "";
+  const W = 640, Hh = 280, L = 56, R = 14, T = 14, B = 34;
+  const vals = H.flatMap(h => [h.t, h.r]), mx = Math.max(1, ...vals), mn = Math.min(0, ...vals);
+  const x = a => L + (a - H[0].a) / (H[H.length - 1].a - H[0].a) * (W - L - R);
+  const y = v => T + (mx - v) / (mx - mn) * (Hh - T - B);
+  let s = "";
+  for (let i = 0; i <= 4; i++) { const v = mn + (mx - mn) * i / 4; s += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${axisWon(v)}</text>`; }
+  for (let a = 10; a <= H[H.length - 1].a; a += 10) if (a >= H[0].a) s += `<text class="ax" x="${x(a)}" y="${Hh - 10}" text-anchor="middle">${a}세</text>`;
+  const line = (k, c, w) => `<polyline points="${H.map(h => `${x(h.a).toFixed(1)},${y(h[k]).toFixed(1)}`).join(" ")}" style="fill:none;stroke:var(${c})" stroke-width="${w}" stroke-linejoin="round"/>`;
+  if (mn < 0) s += `<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" style="stroke:var(--muted)" stroke-width="1"/>`;
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="나이별 자산 변화">${s}${line("t", "--ink", 2.5)}${line("r", "--minus", 2.5)}</svg>`;
+}
+
+/* 오버레이 */
+function openOv(kind) {
+  const ov = $("#ov"); let h = "";
+  if (kind === "stamps") {
+    const got = store.get("hp.stamps", []);
+    h = `<div class="ovh"><h2>개념 도장첩 · ${got.length}/${Object.keys(CONCEPTS).length}</h2><button class="btn sm" data-close>닫기</button></div>
+      <p class="small" style="margin-bottom:12px">여러 번 태어나며 모든 경제 개념 도장을 모아 보세요.</p>
+      <div class="grid-st">${Object.entries(CONCEPTS).map(([k, v]) => `<div class="st ${got.includes(k) ? "on" : "off"}"><div class="ns">${got.includes(k) ? v[0] : "?"}</div><b>${v[0]}</b>${got.includes(k) ? v[1].split(". ")[0] + "." : "아직 찍지 못했어요"}</div>`).join("")}</div>`;
+  } else if (kind === "dex") {
+    const got = store.get("hp.dex", []);
+    h = `<div class="ovh"><h2>엔딩 도감 · ${got.length}/${END_ORDER.length}</h2><button class="btn sm" data-close>닫기</button></div>
+      <div class="grid-st">${END_ORDER.map(k => `<div class="st ${got.includes(k) ? "on" : "off"}"><div class="ns">${got.includes(k) ? "完" : "?"}</div><b>${got.includes(k) ? ENDS[k][0] : "???"}</b>${got.includes(k) ? ENDS[k][1].split(". ")[0] + "." : "아직 만나지 못한 엔딩"}</div>`).join("")}</div>`;
+  } else {
+    const lives = store.get("hp.lives", []);
+    h = `<div class="ovh"><h2>지난 삶</h2><button class="btn sm" data-close>닫기</button></div>
+      ${lives.length ? `<div class="lives">${lives.map(l => `<div><span>${esc(l.n)} · ${TIERS[l.tier][0]} · ${l.age}세</span><span>${ENDS[l.end][0]} · ${won(l.real)}</span></div>`).join("")}</div><p class="small" style="margin-top:8px">금액은 지금 돈 가치로 바꾼 마지막 자산이에요.</p>` : `<p class="small">아직 지나간 삶이 없어요.</p>`}`;
+  }
+  ov.innerHTML = `<div class="sheet plain ovc" role="dialog" aria-modal="true">${h}</div>`;
+  ov.hidden = false;
+}
+
+/* ===================== 이벤트 연결 ===================== */
+document.addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (e.target.id === "ov" || (b && b.hasAttribute("data-close"))) { $("#ov").hidden = true; return; }
+  if (!b) return;
+  if (b.dataset.ov) return openOv(b.dataset.ov);
+  if (b.id === "btn-rname") { $("#nm").value = pick(NAMES1) + pick(NAMES2); return; }
+  if (b.id === "btn-born") {
+    const nm = ($("#nm").value || "").trim() || pick(NAMES1) + pick(NAMES2);
+    G = newGame(nm); view = "birth"; return render();
+  }
+  if (b.id === "btn-cont") { try { G = deser(store.get("hp.save")); view = "game"; } catch (err) { G = null; } return render(); }
+  if (b.id === "btn-open") { view = "game"; G.curAge = 7; beginAt(G, "allow"); saveGame(); return render(); }
+  if (b.id === "btn-home") { view = "start"; return render(); }
+  if (b.id === "btn-again") { view = "start"; G = null; return render(); }
+  if (b.dataset.c != null && G && G.phase === "event") return applyChoice(+b.dataset.c);
+  if (b.id === "btn-next" && G && G.phase === "result") return advance();
+  if (b.dataset.j && G) {
+    const k = b.dataset.j, d = +b.dataset.d;
+    if (d > 0) shiftJar(G, k, 10);
+    else { const to = k === "spend" ? "save" : "spend"; G.jars[k] -= 10; G.jars[to] += 10; }
+    saveGame(); renderSide();
+  }
+});
+document.addEventListener("change", e => { if (e.target.id === "growto" && G) { G.growTo = e.target.value; saveGame(); } });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { $("#ov").hidden = true; return; }
+  if (!G || view !== "game" || e.target.closest("input,select")) return;
+  if (G.phase === "event" && /^[1-9]$/.test(e.key)) { const btn = document.querySelector(`.choice[data-c="${+e.key - 1}"]`); if (btn && !btn.disabled) applyChoice(+e.key - 1); }
+  if (G.phase === "result" && (e.key === "Enter" || e.key === " ") && !e.target.closest("button")) { e.preventDefault(); advance(); }
+});
+
+/* 시험용: 자동으로 한평생을 끝까지 돌린다 (?auto) */
+window.__hp = { EV, SCHED, newGame, yearSim, total, finish: () => G, get G() { return G; } };
+
+render();
+})();
+</script>
+</body>
+</html>
